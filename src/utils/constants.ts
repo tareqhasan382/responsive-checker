@@ -1,4 +1,4 @@
-export const ZOOM_MIN = 0.1;
+export const ZOOM_MIN = 0.02;
 export const ZOOM_MAX = 2;
 export const ZOOM_STEP = 0.25;
 /** Fit modes never upscale beyond 100% — upscaled frames are blurry and misleading. */
@@ -22,8 +22,12 @@ export const MAX_VIEWPORT_HEIGHT = 5000;
 export const DEFAULT_VIEWPORT_WIDTH = 1280;
 export const DEFAULT_VIEWPORT_HEIGHT = 720;
 
-/** Breathing room around the frame inside the preview pane. */
-export const PREVIEW_GUTTER = 8;
+/** Breathing room around the frame inside the preview pane.
+ *  Must be large enough to accommodate the ruler labels which sit outside
+ *  the frame border by -top-5 / -left-5 (~-20px) plus the label's own
+ *  padding and border, plus a safety margin.
+ */
+export const PREVIEW_GUTTER = 28;
 
 /** If the browser has not reported a load event by now we surface a hint. */
 export const FRAME_LOAD_TIMEOUT_MS = 12_000;

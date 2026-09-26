@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { DeviceChip } from '@/components/device/DeviceChip';
 import { Button } from '@/components/ui/Button';
@@ -17,6 +17,18 @@ import { CustomViewportDialog } from './CustomViewportDialog';
 /** The categories that have a tab. `custom` sizes get their own saved row. */
 type PickerCategory = Exclude<ViewportCategory, 'custom'>;
 
+function isPickerCategory(
+  value: ViewportCategory | undefined,
+): value is PickerCategory {
+  return (
+    value === 'mobile' ||
+    value === 'tablet' ||
+    value === 'desktop' ||
+    value === '2k' ||
+    value === '4k'
+  );
+}
+
 export interface ViewportSelectorProps {
   readonly viewport: UseViewportResult;
 }
@@ -31,15 +43,16 @@ export interface ViewportSelectorProps {
 export function ViewportSelector({ viewport }: ViewportSelectorProps) {
   const initialCategory = viewport.activePreset?.category;
   const [category, setCategory] = useState<PickerCategory>(
-    initialCategory === 'mobile' ||
-      initialCategory === 'tablet' ||
-      initialCategory === 'desktop' ||
-      initialCategory === '2k' ||
-      initialCategory === '4k'
-      ? initialCategory
-      : 'mobile',
+    isPickerCategory(initialCategory) ? initialCategory : 'mobile',
   );
   const [dialogOpen, setDialogOpen] = useState(false);
+
+  useEffect(() => {
+    const presetCategory = viewport.activePreset?.category;
+    if (isPickerCategory(presetCategory) && presetCategory !== category) {
+      setCategory(presetCategory);
+    }
+  }, [viewport.activePreset?.category, category]);
 
   const presets = viewport.presets.filter(
     (preset) => preset.category === category,

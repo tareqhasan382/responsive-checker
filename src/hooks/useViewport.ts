@@ -202,9 +202,10 @@ export function useViewport(): UseViewportResult {
     [baseSize, presets],
   );
 
+  const baseIsLandscape = baseSize.width >= baseSize.height;
   const activeLabel = activePreset
     ? isRotated
-      ? `${activePreset.label} landscape`
+      ? `${activePreset.label} ${baseIsLandscape ? 'portrait' : 'landscape'}`
       : activePreset.label
     : 'Custom size';
 

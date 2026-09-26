@@ -53,7 +53,7 @@ export function ViewportPreview({
       : null;
 
   return (
-    <div className="preview-grid scrollbar-slim relative flex-1 overflow-auto overscroll-contain">
+    <div className="preview-grid scrollbar-slim relative flex-1 overflow-x-hidden overflow-y-auto overscroll-contain">
       <div
         className="flex min-h-full min-w-full items-center justify-center"
         style={{ padding: PREVIEW_GUTTER }}
@@ -64,33 +64,35 @@ export function ViewportPreview({
           <EmptyState />
         ) : (
           <div
-            className="relative shrink-0 rounded-md border border-app-border shadow-app-sm"
+            className="relative shrink-0"
             style={{ width: display.width, height: display.height }}
           >
-            {/*
-              Sized to the logical viewport and positioned at the origin. The
-              visual scale is applied by the iframe itself, so it must not be
-              applied here as well — two nested scales would compound into
-              zoom squared.
-            */}
-            <div
-              className="absolute top-0 left-0 overflow-hidden rounded-[5px]"
-              style={{ width: content.width, height: content.height }}
-            >
-              <ViewportFrame
-                src={target}
-                content={content}
-                zoom={zoom}
-                reloadKey={reloadKey}
-                onStatusChange={handleStatusChange}
-              />
-            </div>
-
             <Ruler width={content.width} height={content.height} />
 
-            {blocking ? (
-              <Overlay status={blocking} target={target} onReload={onReload} />
-            ) : null}
+            <div className="relative size-full overflow-hidden rounded-md border border-app-border shadow-app-sm">
+              {/*
+                Sized to the logical viewport and positioned at the origin. The
+                visual scale is applied by the iframe itself, so it must not be
+                applied here as well — two nested scales would compound into
+                zoom squared.
+              */}
+              <div
+                className="absolute top-0 left-0 overflow-hidden rounded-[5px]"
+                style={{ width: content.width, height: content.height }}
+              >
+                <ViewportFrame
+                  src={target}
+                  content={content}
+                  zoom={zoom}
+                  reloadKey={reloadKey}
+                  onStatusChange={handleStatusChange}
+                />
+              </div>
+
+              {blocking ? (
+                <Overlay status={blocking} target={target} onReload={onReload} />
+              ) : null}
+            </div>
           </div>
         )}
       </div>

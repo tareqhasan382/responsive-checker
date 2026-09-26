@@ -49,7 +49,7 @@ export function useZoom({
 }: UseZoomOptions): UseZoomResult {
   const storedMode = usePersistentState<FitMode>(
     STORAGE_KEYS.fitMode,
-    'width',
+    'screen',
     isFitMode,
   );
   const storedManualZoom = usePersistentState<number>(
@@ -67,12 +67,21 @@ export function useZoom({
     if (mode === 'manual') {
       return snapZoom(clamp(storedManualZoom.value, ZOOM_MIN, ZOOM_MAX));
     }
-    // A frame that always fills the pane cannot also be fitted on both axes,
-    // so filling the height implies a width fit.
     if (heightMode === 'auto') {
+      // A frame that always fills the pane cannot also be fitted on both
+      // axes, so filling the height implies a width fit.  display.height
+      // is derived from the zoom (via deriveFrameGeometry) and will always
+      // match the available height — so there is never any vertical
+      // overflow in this mode and we don't need a second cap.
       return calculateFitZoom(content, available, 'width');
     }
-    return calculateFitZoom(content, available, mode);
+    // In fixed-height mode the frame keeps the device's aspect ratio, so a
+    // tall viewport selected with only a width fit would overflow the pane
+    // vertically.  Always cap to the screen-fit zoom so 2K / 4K / custom
+    // and rotated-tall viewports stay fully visible inside the preview.
+    const primary = calculateFitZoom(content, available, mode);
+    const screenFit = calculateFitZoom(content, available, 'screen');
+    return Math.min(primary, screenFit);
   }, [available, content, heightMode, mode, storedManualZoom.value]);
 
   const setZoom = useCallback(
