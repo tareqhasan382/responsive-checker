@@ -64,7 +64,7 @@ export function ViewportPreview({
           <EmptyState />
         ) : (
           <div
-            className="relative shrink-0"
+            className="relative shrink-0 rounded-md border border-app-border shadow-app-sm"
             style={{ width: display.width, height: display.height }}
           >
             {/*
@@ -74,7 +74,7 @@ export function ViewportPreview({
               zoom squared.
             */}
             <div
-              className="absolute top-0 left-0"
+              className="absolute top-0 left-0 overflow-hidden rounded-[5px]"
               style={{ width: content.width, height: content.height }}
             >
               <ViewportFrame
@@ -104,10 +104,10 @@ function Ruler({ width, height }: Size) {
       aria-hidden="true"
       className="pointer-events-none absolute inset-0 select-none"
     >
-      <span className="border-app-border/70 bg-app-canvas/85 text-app-subtle absolute -top-6 left-1/2 -translate-x-1/2 rounded border px-1.5 py-0.5 font-mono text-[10px] tabular-nums">
+      <span className="border-app-border bg-app-panel/95 text-app-subtle absolute -top-5 left-1/2 -translate-x-1/2 rounded border px-1.5 py-0.5 font-mono text-[10px] tabular-nums">
         {width}px
       </span>
-      <span className="border-app-border/70 bg-app-canvas/85 text-app-subtle absolute top-1/2 -left-5 -translate-y-1/2 rounded border px-1 py-1 font-mono text-[10px] tabular-nums [writing-mode:vertical-rl]">
+      <span className="border-app-border bg-app-panel/95 text-app-subtle absolute top-1/2 -left-5 -translate-y-1/2 rounded border px-0.5 py-1 font-mono text-[10px] tabular-nums [writing-mode:vertical-rl]">
         {height}px
       </span>
     </div>
@@ -124,22 +124,24 @@ function Overlay({
   readonly onReload: () => void;
 }) {
   return (
-    <div className="bg-app-canvas/85 absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-lg px-6 text-center backdrop-blur-[2px]">
+    <div className="bg-app-overlay absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-[5px] px-4 text-center backdrop-blur">
       {status === 'loading' ? (
         <div
           role="status"
-          className="text-app-muted flex items-center gap-2 text-sm"
+          className="text-app-muted flex items-center gap-2 text-xs font-medium"
         >
           <span className="border-app-border border-t-app-accent size-3.5 animate-spin rounded-full border-2" />
           {STATUS_MESSAGES.loading}
         </div>
       ) : (
         <>
-          <AlertIcon className="text-app-warning text-xl" />
-          <p className="text-app-muted max-w-sm text-xs leading-relaxed">
+          <div className="bg-app-warning/10 flex size-9 items-center justify-center rounded-md ring-1 ring-app-warning/20">
+            <AlertIcon className="text-app-warning text-base" />
+          </div>
+          <p className="text-app-muted max-w-sm text-[11px] leading-relaxed">
             {STATUS_MESSAGES[status]}
           </p>
-          <div className="flex flex-wrap items-center justify-center gap-2">
+          <div className="flex flex-wrap items-center justify-center gap-1.5">
             <Button
               size="sm"
               variant="secondary"
@@ -150,7 +152,7 @@ function Overlay({
             </Button>
             <Button
               size="sm"
-              variant="ghost"
+              variant="outline"
               icon={<ExternalLinkIcon />}
               onClick={() =>
                 window.open(target, '_blank', 'noopener,noreferrer')
@@ -169,19 +171,42 @@ function Skeleton() {
   return (
     <div
       aria-hidden="true"
-      className="border-app-border bg-app-panel/40 size-40 animate-pulse rounded-xl border"
+      className="border-app-border bg-app-panel/60 size-36 animate-pulse rounded-md border"
     />
   );
 }
 
 function EmptyState() {
   return (
-    <div className="max-w-sm px-6 text-center">
-      <h2 className="text-base font-semibold">Responsive UI Tester</h2>
-      <p className="text-app-muted mt-2 text-sm leading-relaxed">
+    <div className="max-w-md px-4 py-6 text-center">
+      <div
+        className="text-app-accent mx-auto mb-3 flex size-11 items-center justify-center rounded-md"
+        style={{
+          backgroundImage:
+            'linear-gradient(135deg, color-mix(in oklab, var(--app-accent) 90%, white 10%), var(--app-accent-strong))',
+        }}
+      >
+        <svg
+          viewBox="0 0 24 24"
+          width="1.25rem"
+          height="1.25rem"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={1.75}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <circle cx="12" cy="12" r="9" />
+          <path d="M3 12h18" />
+          <path d="M12 3a15 15 0 0 1 0 18a15 15 0 0 1 0-18" />
+        </svg>
+      </div>
+      <h2 className="text-sm font-semibold tracking-tight">Responsive UI Tester</h2>
+      <p className="text-app-muted mt-1.5 text-xs leading-relaxed">
         Test your website across mobile, tablet, desktop, 2K and 4K viewports.
       </p>
-      <p className="text-app-subtle mt-1 text-xs leading-relaxed">
+      <p className="text-app-subtle mt-1 text-[11px] leading-relaxed">
         Enter a URL above to get started. Everything runs in your browser.
       </p>
     </div>

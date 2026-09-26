@@ -22,15 +22,16 @@ export function DeviceChip({ preset, active, onSelect }: DeviceChipProps) {
       onClick={() => onSelect(preset)}
       title={`${preset.label} — ${formatSize(preset)}`}
       className={cn(
-        'group flex h-11 min-w-24 flex-col items-start justify-center rounded-md border px-2.5 text-left transition-colors duration-150',
+        'group flex h-10 min-w-24 flex-col items-start justify-center rounded-md border px-2 text-left ' +
+        'transition-[background-color,border-color,color] duration-120 ease-out',
         active
           ? 'border-app-selected-border bg-app-selected-bg text-app-selected-text'
-          : 'border-app-border bg-app-elevated text-app-muted hover:border-app-border-strong hover:bg-app-hover hover:text-app-text',
+          : 'border-app-border bg-app-panel text-app-muted hover:border-app-border-strong hover:bg-app-hover hover:text-app-text',
       )}
     >
       <span
         className={cn(
-          'font-mono text-xs leading-tight font-medium tabular-nums',
+          'font-mono text-[11px] leading-tight font-medium tabular-nums',
           active && 'text-app-selected-text',
         )}
       >

@@ -115,7 +115,7 @@ export default function HomePage() {
   return (
     <AppShell
       headerContent={
-        <form onSubmit={handleSubmit} noValidate className="mx-2 flex min-w-0 items-center gap-2">
+        <form onSubmit={handleSubmit} noValidate className="mx-1.5 flex min-w-0 items-center gap-1.5">
           <div className="min-w-0 flex-1">
             <label className="sr-only">Website URL to test</label>
             <Input
@@ -124,17 +124,18 @@ export default function HomePage() {
               autoComplete="url"
               spellCheck={false}
               placeholder="example.com, localhost:3000 …"
-              leading={<GlobeIcon className="text-base" />}
+              leading={<GlobeIcon className="text-sm" />}
               invalid={url.error !== null}
               onChange={(event) => url.setInput(event.target.value)}
-              className="h-9"
+              className="h-7"
             />
           </div>
           <Button
             type="submit"
             variant="primary"
+            size="sm"
             icon={<TestIcon />}
-            className="h-9 shrink-0"
+            className="h-7 shrink-0"
           >
             Test
           </Button>
@@ -145,37 +146,40 @@ export default function HomePage() {
         <aside
           className={
             collapsed
-              ? 'border-app-border bg-app-panel shrink-0 border-r w-14'
-              : 'border-app-border bg-app-panel shrink-0 overflow-y-auto border-r w-72'
+              ? 'border-app-border bg-app-panel shrink-0 border-r w-10'
+              : 'border-app-border bg-app-panel scrollbar-slim shrink-0 overflow-y-auto border-r w-64'
           }
         >
           {collapsed ? (
-            <div className="flex flex-col items-center gap-3 p-2.5">
+            <div className="flex flex-col items-center gap-2 p-1.5">
               <button
                 type="button"
                 onClick={toggleSidebar}
                 aria-label="Expand device sidebar"
                 title="Expand device sidebar"
-                className="group border-app-border bg-app-canvas text-app-muted hover:border-app-accent hover:text-app-accent flex size-9 shrink-0 flex-col items-center justify-center gap-0.5 rounded-xl border shadow-sm transition-all duration-150 hover:shadow-md"
+                className="group border-app-border bg-app-canvas text-app-muted hover:border-app-accent hover:text-app-accent flex size-7 shrink-0 items-center justify-center rounded-md border transition-colors duration-150"
               >
-                <ChevronRightIcon className="text-sm leading-none" />
-                <span className="text-[8px] font-semibold leading-none tracking-wide">
-                  DEV
-                </span>
+                <ChevronRightIcon className="text-[13px]" />
               </button>
             </div>
           ) : (
-            <div className="flex flex-col gap-3 p-3.5">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="bg-app-selected-bg text-app-selected-text flex size-7 items-center justify-center rounded-lg">
-                    <ChevronRightIcon className="text-sm" />
+            <div className="flex flex-col gap-2.5 p-2">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex min-w-0 flex-1 items-center gap-1.5">
+                  <span
+                    className="text-app-accent-contrast flex size-6 shrink-0 items-center justify-center rounded-md"
+                    style={{
+                      backgroundImage:
+                        'linear-gradient(135deg, var(--app-accent), var(--app-accent-strong))',
+                    }}
+                  >
+                    <ChevronRightIcon className="text-[12px]" />
                   </span>
-                  <div className="flex flex-col">
-                    <span className="text-app-text text-sm font-semibold leading-tight">
+                  <div className="min-w-0 flex-1 flex-col">
+                    <span className="text-app-text truncate text-[12px] font-semibold leading-tight tracking-tight">
                       Devices
                     </span>
-                    <span className="text-app-subtle text-[10px] leading-tight">
+                    <span className="text-app-subtle truncate text-[10px] leading-tight">
                       {viewport.activeLabel}
                     </span>
                   </div>
@@ -185,32 +189,31 @@ export default function HomePage() {
                   onClick={toggleSidebar}
                   aria-label="Collapse device sidebar"
                   title="Collapse device sidebar"
-                  className="group border-app-border bg-app-canvas text-app-muted hover:border-app-accent hover:text-app-accent flex items-center gap-1 rounded-lg border px-2 py-1.5 text-[11px] font-medium shadow-sm transition-all duration-150 hover:shadow-md"
+                  className="group border-app-border bg-app-canvas text-app-muted hover:border-app-accent hover:text-app-accent shrink-0 flex items-center gap-0.5 rounded-md border px-1.5 py-1 text-[10.5px] font-medium transition-colors duration-150"
                 >
-                  <ChevronLeftIcon className="text-sm leading-none" />
-                  <span>Hide</span>
+                  <ChevronLeftIcon className="text-[12px]" />
                 </button>
               </div>
 
               <ViewportSelector viewport={viewport} />
 
-              <div className="border-app-border border-t pt-3">
+              <div className="border-app-border border-t pt-2">
                 <ViewportControls viewport={viewport} />
               </div>
 
-              <div className="border-app-border border-t pt-3">
-                <h3 className="text-app-subtle mb-1.5 text-[11px] font-medium tracking-wide uppercase">
+              <div className="border-app-border border-t pt-2">
+                <h3 className="text-app-subtle mb-1 text-[10.5px] font-medium tracking-wide uppercase">
                   Zoom
                 </h3>
                 <ZoomControls zoom={zoom} heightMode={viewport.heightMode} />
               </div>
 
-              <div className="border-app-border border-t pt-3">
-                <h3 className="text-app-subtle mb-1.5 text-[11px] font-medium tracking-wide uppercase">
+              <div className="border-app-border border-t pt-2">
+                <h3 className="text-app-subtle mb-1 text-[10.5px] font-medium tracking-wide uppercase">
                   Actions
                 </h3>
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="border-app-border bg-app-elevated text-app-muted rounded-lg border px-2 py-1 font-mono text-[11px] tabular-nums">
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <span className="border-app-border bg-app-elevated text-app-muted rounded-md border px-1.5 py-0.5 font-mono text-[10.5px] tabular-nums">
                     {formatSize(viewport.size)}
                   </span>
                   <IconButton

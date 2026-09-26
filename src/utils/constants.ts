@@ -23,7 +23,7 @@ export const DEFAULT_VIEWPORT_WIDTH = 1280;
 export const DEFAULT_VIEWPORT_HEIGHT = 720;
 
 /** Breathing room around the frame inside the preview pane. */
-export const PREVIEW_GUTTER = 28;
+export const PREVIEW_GUTTER = 8;
 
 /** If the browser has not reported a load event by now we surface a hint. */
 export const FRAME_LOAD_TIMEOUT_MS = 12_000;

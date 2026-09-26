@@ -9,12 +9,24 @@ export interface AppHeaderProps {
 
 export function AppHeader({ children }: AppHeaderProps) {
   return (
-    <header className="border-app-border bg-app-canvas flex shrink-0 items-center gap-2.5 border-b px-3 py-2 sm:px-4">
-      <span className="bg-app-selected-bg text-app-selected-text flex size-7 shrink-0 items-center justify-center rounded-md">
-        <GlobeIcon className="text-base" />
+    <header
+      className="border-app-border bg-app-panel/90 backdrop-blur-md sticky top-0 z-10 flex shrink-0 items-center gap-2 border-b px-2 py-1.5 sm:px-2.5"
+      style={{
+        backgroundImage:
+          'linear-gradient(180deg, color-mix(in oklab, var(--app-panel) 95%, var(--app-accent) 5%), var(--app-panel))',
+      }}
+    >
+      <span
+        className="bg-app-accent text-app-accent-contrast flex size-6 shrink-0 items-center justify-center rounded-md"
+        style={{
+          backgroundImage:
+            'linear-gradient(135deg, var(--app-accent), var(--app-accent-strong))',
+        }}
+      >
+        <GlobeIcon className="text-[13px]" />
       </span>
 
-      <h1 className="truncate text-sm leading-tight font-semibold tracking-tight">
+      <h1 className="truncate text-[13px] leading-tight font-semibold tracking-tight">
         Responsive Tester
       </h1>
 
@@ -22,8 +34,10 @@ export function AppHeader({ children }: AppHeaderProps) {
         <div className="min-w-0 flex-1">{children}</div>
       ) : null}
 
-      <div className="ml-auto flex items-center gap-2">
-        <span className="border-app-border bg-app-panel text-app-muted hidden shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] lg:flex">
+      <div className="ml-auto flex items-center gap-1.5">
+        <span
+          className="border-app-border bg-app-canvas/90 text-app-muted hidden shrink-0 items-center gap-1 rounded-md border px-2 py-0.5 text-[10.5px] lg:flex"
+        >
           <span className="bg-app-success size-1.5 rounded-full" />
           100% in your browser
         </span>

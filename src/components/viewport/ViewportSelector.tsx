@@ -62,11 +62,11 @@ export function ViewportSelector({ viewport }: ViewportSelectorProps) {
 
   return (
     <>
-      <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5">
+      <div className="flex flex-wrap items-center gap-y-1">
         <div
           role="group"
           aria-label="Device category"
-          className="border-app-border bg-app-elevated flex w-full items-center overflow-hidden rounded-lg border p-0.5"
+          className="border-app-border bg-app-elevated flex w-full items-center overflow-hidden rounded-md border p-0.5"
         >
           {VIEWPORT_CATEGORIES.map((option) => {
             const active = option === category;
@@ -77,9 +77,9 @@ export function ViewportSelector({ viewport }: ViewportSelectorProps) {
                 aria-pressed={active}
                 onClick={() => handleCategoryChange(option)}
                 className={cn(
-                  'relative h-8 flex-1 rounded-md px-2 text-xs font-medium transition-all duration-150',
+                  'relative h-7 flex-1 rounded px-1.5 text-[11px] font-medium transition-colors duration-120',
                   active
-                    ? 'bg-app-selected-bg text-app-selected-text shadow-sm'
+                    ? 'bg-app-selected-bg text-app-selected-text'
                     : 'text-app-muted hover:bg-app-hover hover:text-app-text',
                 )}
               >
@@ -94,7 +94,7 @@ export function ViewportSelector({ viewport }: ViewportSelectorProps) {
           variant="outline"
           icon={<FrameIcon />}
           onClick={() => setDialogOpen(true)}
-          className="w-full"
+          className="mt-1 w-full"
         >
           Custom size
         </Button>
@@ -103,7 +103,7 @@ export function ViewportSelector({ viewport }: ViewportSelectorProps) {
       <div
         role="group"
         aria-label={`${VIEWPORT_CATEGORY_LABELS[category]} viewports`}
-        className="mt-1.5 flex flex-wrap gap-1.5"
+        className="mt-1 flex flex-wrap gap-1"
       >
         {presets.map((preset) => (
           <DeviceChip
@@ -119,7 +119,7 @@ export function ViewportSelector({ viewport }: ViewportSelectorProps) {
         <div
           role="group"
           aria-label="Saved custom viewports"
-          className="mt-1.5 flex flex-wrap items-center gap-1.5"
+          className="mt-1 flex flex-wrap items-center gap-1"
         >
           <span className="text-app-subtle pr-0.5 text-[10px] tracking-wide uppercase">
             Saved
