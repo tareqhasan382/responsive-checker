@@ -1,0 +1,111 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
+  --font-mono:
+    ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono',
+    monospace;
+
+  /* Semantic surface tokens — a dark, low-glare developer tool palette.
+     Every text/background pair below meets WCAG AA (>= 4.5:1) on the
+     surfaces it is used on; `subtle` is the dimmest compliant step. */
+  --color-app-canvas: oklch(0.16 0.005 264);
+  --color-app-panel: oklch(0.2 0.006 264);
+  --color-app-elevated: oklch(0.25 0.007 264);
+  --color-app-hover: oklch(0.29 0.008 264);
+  --color-app-border: oklch(0.3 0.008 264);
+  --color-app-border-strong: oklch(0.38 0.01 264);
+  --color-app-text: oklch(0.97 0.002 264);
+  --color-app-muted: oklch(0.71 0.014 264);
+  --color-app-subtle: oklch(0.6513 0.0151 258.36);
+  --color-app-accent: oklch(0.68 0.16 254);
+  --color-app-accent-strong: oklch(0.76 0.16 254);
+  --color-app-accent-contrast: oklch(0.17 0.02 254);
+  --color-app-danger: oklch(0.65 0.19 25);
+  --color-app-warning: oklch(0.78 0.15 85);
+  --color-app-success: oklch(0.72 0.15 155);
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    background-color: var(--color-app-canvas);
+    color: var(--color-app-text);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overscroll-behavior: none;
+  }
+
+  /* Consistent, unobtrusive focus ring across the whole tool. */
+  :focus-visible {
+    outline: 2px solid var(--color-app-accent);
+    outline-offset: 2px;
+  }
+
+  input[type='number']::-webkit-outer-spin-button,
+  input[type='number']::-webkit-inner-spin-button {
+    appearance: none;
+    margin: 0;
+  }
+
+  input[type='number'] {
+    appearance: textfield;
+    -moz-appearance: textfield;
+  }
+}
+
+@utility scrollbar-slim {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-app-border-strong) transparent;
+
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: var(--color-app-border-strong);
+    border-radius: 9999px;
+  }
+}
+
+/* Dot grid behind the preview, so transparent and shadowed designs are easy to
+   judge against a neutral backdrop. */
+@utility preview-grid {
+  background-image: radial-gradient(
+    circle at 1px 1px,
+    color-mix(in oklab, var(--color-app-border) 90%, transparent) 1px,
+    transparent 0
+  );
+  background-size: 16px 16px;
+}
+
+.rt-dialog {
+  opacity: 0;
+  transform: translateY(8px) scale(0.98);
+  transition:
+    opacity 140ms ease,
+    transform 140ms ease;
+}
+
+.rt-dialog[open] {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rt-dialog {
+    transition: none;
+  }
+}
