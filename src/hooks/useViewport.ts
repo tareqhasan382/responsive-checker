@@ -95,7 +95,7 @@ export function useViewport(): UseViewportResult {
   );
   const storedHeightMode = usePersistentState<HeightMode>(
     STORAGE_KEYS.heightMode,
-    'auto',
+    'fixed',
     isHeightMode,
   );
   const storedCustomViewports = usePersistentState<ViewportPreset[]>(

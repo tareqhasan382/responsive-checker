@@ -25,7 +25,8 @@ function isPickerCategory(
     value === 'tablet' ||
     value === 'desktop' ||
     value === '2k' ||
-    value === '4k'
+    value === '4k' ||
+    value === 'tv'
   );
 }
 

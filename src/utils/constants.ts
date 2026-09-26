@@ -45,9 +45,9 @@ export const STORAGE_KEYS = {
   targetUrl: 'responsive-checker:target-url',
   customViewports: 'responsive-checker:custom-viewports',
   viewportSize: 'responsive-checker:viewport-size',
-  heightMode: 'responsive-checker:height-mode',
+  heightMode: 'responsive-checker:height-mode:v2',
   isRotated: 'responsive-checker:is-rotated',
-  fitMode: 'responsive-checker:fit-mode',
+  fitMode: 'responsive-checker:fit-mode:v2',
   manualZoom: 'responsive-checker:manual-zoom',
   theme: 'responsive-checker:theme',
 } as const;

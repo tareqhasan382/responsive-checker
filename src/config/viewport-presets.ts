@@ -10,6 +10,22 @@ import type { ViewportCategory, ViewportPreset } from '@/types/viewport';
 export const VIEWPORT_PRESETS = [
   // Mobile
   {
+    id: 'mobile-320-480',
+    label: 'Extra small phone',
+    category: 'mobile',
+    width: 320,
+    height: 480,
+    devicePixelRatio: 1.5,
+  },
+  {
+    id: 'mobile-360-640',
+    label: 'Compact phone',
+    category: 'mobile',
+    width: 360,
+    height: 640,
+    devicePixelRatio: 2,
+  },
+  {
     id: 'mobile-320',
     label: 'Small phone',
     category: 'mobile',
@@ -68,6 +84,14 @@ export const VIEWPORT_PRESETS = [
 
   // Tablet
   {
+    id: 'tablet-600-960',
+    label: 'Small tablet mini',
+    category: 'tablet',
+    width: 600,
+    height: 960,
+    devicePixelRatio: 2,
+  },
+  {
     id: 'tablet-600',
     label: 'Small tablet',
     category: 'tablet',
@@ -81,6 +105,14 @@ export const VIEWPORT_PRESETS = [
     category: 'tablet',
     width: 768,
     height: 1024,
+    devicePixelRatio: 2,
+  },
+  {
+    id: 'tablet-810',
+    label: 'iPad 10.2"',
+    category: 'tablet',
+    width: 810,
+    height: 1080,
     devicePixelRatio: 2,
   },
   {
@@ -110,8 +142,16 @@ export const VIEWPORT_PRESETS = [
 
   // Desktop
   {
+    id: 'desktop-1280-800',
+    label: 'Small laptop (WXGA)',
+    category: 'desktop',
+    width: 1280,
+    height: 800,
+    devicePixelRatio: 1,
+  },
+  {
     id: 'desktop-1280',
-    label: 'Laptop',
+    label: 'Laptop (HD)',
     category: 'desktop',
     width: 1280,
     height: 720,
@@ -177,6 +217,40 @@ export const VIEWPORT_PRESETS = [
     height: 2160,
     devicePixelRatio: 1,
   },
+
+  // TV
+  {
+    id: 'tv-960-540',
+    label: 'TV effective 540p',
+    category: 'tv',
+    width: 960,
+    height: 540,
+    devicePixelRatio: 2,
+  },
+  {
+    id: 'tv-1280',
+    label: 'HD Ready TV 720p',
+    category: 'tv',
+    width: 1280,
+    height: 720,
+    devicePixelRatio: 1,
+  },
+  {
+    id: 'tv-1920',
+    label: 'Full HD TV',
+    category: 'tv',
+    width: 1920,
+    height: 1080,
+    devicePixelRatio: 1,
+  },
+  {
+    id: 'tv-3840',
+    label: 'UHD 4K TV',
+    category: 'tv',
+    width: 3840,
+    height: 2160,
+    devicePixelRatio: 1,
+  },
 ] as const satisfies readonly ViewportPreset[];
 
 /** Order the category tabs are shown in. `custom` is rendered separately. */
@@ -186,6 +260,7 @@ export const VIEWPORT_CATEGORIES = [
   'desktop',
   '2k',
   '4k',
+  'tv',
 ] as const satisfies readonly ViewportCategory[];
 
 export const VIEWPORT_CATEGORY_LABELS: Record<
@@ -197,10 +272,11 @@ export const VIEWPORT_CATEGORY_LABELS: Record<
   desktop: 'Desktop',
   '2k': '2K',
   '4k': '4K',
+  tv: 'TV',
 };
 
 /** Quick-fill widths offered in the custom viewport dialog. */
 export const VIEWPORT_WIDTH_SHORTCUTS = [
-  320, 360, 375, 390, 414, 480, 600, 768, 834, 1024, 1280, 1366, 1440, 1536,
-  1600, 1920, 2560,
+  320, 360, 375, 390, 414, 480, 540, 600, 720, 768, 810, 834, 960, 1024, 1080,
+  1280, 1366, 1440, 1536, 1600, 1920, 2560, 3840,
 ] as const;
