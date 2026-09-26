@@ -85,7 +85,7 @@ export function UrlInput({ value, error, onChange, onSubmit }: UrlInputProps) {
               className={cn(
                 'h-6 rounded border px-1.5 font-mono text-[11px] transition-colors',
                 active
-                  ? 'border-app-accent/60 bg-app-accent/15 text-app-accent'
+                  ? 'border-app-selected-border bg-app-selected-bg text-app-selected-text'
                   : 'border-app-border text-app-subtle hover:border-app-border-strong hover:text-app-text',
               )}
             >

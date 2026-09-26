@@ -55,9 +55,12 @@ export function Dialog({
       aria-labelledby={titleId}
       aria-describedby={description ? descriptionId : undefined}
       onCancel={(event) => {
+        // Escape: let React own the state transition rather than letting the
+        // platform close the element behind its back.
         event.preventDefault();
         onClose();
       }}
+      onClose={onClose}
       onClick={handleBackdropClick}
       className={cn(
         'rt-dialog border-app-border m-auto w-[min(30rem,calc(100vw-2rem))] rounded-xl border',

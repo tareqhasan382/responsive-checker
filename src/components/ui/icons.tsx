@@ -210,6 +210,22 @@ export function ChevronDownIcon(props: IconProps) {
   );
 }
 
+export function ChevronLeftIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M15.5 6 9.5 12l6 6" />
+    </Icon>
+  );
+}
+
+export function ChevronRightIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M9.5 6 15.5 12 9.5 18" />
+    </Icon>
+  );
+}
+
 export function FrameIcon(props: IconProps) {
   return (
     <Icon {...props}>
@@ -239,6 +255,48 @@ export function ShrinkIcon(props: IconProps) {
       <path d="M15 3.5V9h5.5" />
       <path d="M15 20.5V15h5.5" />
       <path d="M9 20.5V15H3.5" />
+    </Icon>
+  );
+}
+
+export function SunIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <circle cx="12" cy="12" r="4" />
+      <path d="M12 2.5v2" />
+      <path d="M12 19.5v2" />
+      <path d="M2.5 12h2" />
+      <path d="M19.5 12h2" />
+      <path d="m5.3 5.3 1.4 1.4" />
+      <path d="m17.3 17.3 1.4 1.4" />
+      <path d="m18.7 5.3-1.4 1.4" />
+      <path d="m6.7 17.3-1.4 1.4" />
+    </Icon>
+  );
+}
+
+export function MoonIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M20 14.2A8.2 8.2 0 0 1 9.8 4a8.5 8.5 0 1 0 10.2 10.2Z" />
+    </Icon>
+  );
+}
+
+export function GitHubIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M9 19.5c-4.5 1.4-4.5-2.3-6.3-2.8m12.6 5.3v-3.6a3.1 3.1 0 0 0-.9-2.4c2.9-.3 6-1.4 6-6.4a5 5 0 0 0-1.4-3.5 4.6 4.6 0 0 0-.1-3.5s-1.1-.3-3.6 1.4a12.3 12.3 0 0 0-6.4 0C6.7 1.7 5.6 2 5.6 2a4.6 4.6 0 0 0-.1 3.5A5 5 0 0 0 4 9c0 5 3 6.1 5.9 6.4a3.1 3.1 0 0 0-.9 2.4V22" />
+    </Icon>
+  );
+}
+
+export function LinkOffIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M8.5 12.5 6 15a3.5 3.5 0 0 1-5-5l3.5-3.5a3.5 3.5 0 0 1 4.9 0" />
+      <path d="M15.5 11.5 18 9a3.5 3.5 0 0 1 5 5l-3.5 3.5a3.5 3.5 0 0 1-4.9 0" />
+      <path d="M4 4l16 16" />
     </Icon>
   );
 }

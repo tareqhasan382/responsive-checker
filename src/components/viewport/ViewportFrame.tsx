@@ -64,6 +64,10 @@ export function ViewportFrame({
       onError={() => setStatus('error')}
       referrerPolicy="no-referrer"
       sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-modals allow-downloads"
+      // Intrinsic attributes as well as CSS, so the document is the right size
+      // even before styles are applied and assistive tech can read it.
+      width={content.width}
+      height={content.height}
       style={{
         width: `${content.width}px`,
         height: `${content.height}px`,

@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import type { UrlValidationResult } from '@/types/app';
-import { DEFAULT_TARGET_URL, STORAGE_KEYS } from '@/utils/constants';
+import { STORAGE_KEYS } from '@/utils/constants';
 import { readTargetFromQuery, toTargetUrl, validateUrl } from '@/utils/url';
 import { usePersistentState } from './usePersistentState';
 
@@ -45,12 +45,16 @@ export function useTargetUrl(): UseTargetUrlResult {
 
   useEffect(() => {
     if (!hydrated || decoded) return;
+    // Deep link wins, then the last session's target. Otherwise the app opens
+    // empty and waits for input, which is what the empty state describes.
     const fromQuery = readTargetFromQuery(window.location.search);
-    const initial = fromQuery ?? persistedTarget ?? DEFAULT_TARGET_URL;
-    const result = validateUrl(initial);
-    if (result.ok) {
-      setTarget(result.url);
-      setInput(result.url);
+    const initial = fromQuery ?? persistedTarget;
+    if (initial !== null) {
+      const result = validateUrl(initial);
+      if (result.ok) {
+        setTarget(result.url);
+        setInput(result.url);
+      }
     }
     setDecoded(true);
   }, [decoded, hydrated, persistedTarget]);

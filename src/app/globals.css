@@ -1,6 +1,77 @@
 @import 'tailwindcss';
 
-@theme {
+/* Theme tokens.
+ *
+ * Raw values live on `:root` / `.dark` so they can be swapped at runtime, and
+ * `@theme inline` maps them into Tailwind's colour namespace. `inline` makes the
+ * generated utilities reference `var(--app-*)` directly instead of copying the
+ * value, which is what lets `bg-app-canvas` follow the active theme.
+ *
+ * NOTE: in `oklch()` a bare L is a number in the range 0-1, NOT 0-100. Writing
+ * `oklch(19.19 ...)` silently clamps to L=1 and renders pure white, which turns
+ * the whole UI white-on-white. Always use the percentage form (`19.19%`).
+ *
+ * Both palettes are hand-tuned: every text/background pair below is at or above
+ * WCAG AA (4.5:1) on each surface it is used on. `subtle` is the dimmest step
+ * that still clears the threshold in both themes. */
+:root {
+  color-scheme: light;
+
+  --app-canvas: oklch(97.34% 0.0013 286.38);
+  --app-panel: oklch(100% 0 0);
+  --app-elevated: oklch(95% 0.004 286.32);
+  --app-hover: oklch(92.03% 0.0067 286.27);
+  --app-border: oklch(90.81% 0.0067 286.26);
+  --app-border-strong: oklch(82.3% 0.0125 286.12);
+  --app-text: oklch(19.19% 0.0082 274.47);
+  --app-muted: oklch(43.47% 0.0121 267.24);
+  --app-subtle: oklch(51.04% 0.0131 269.42);
+  --app-accent: oklch(52.66% 0.1939 260.56);
+  --app-accent-strong: oklch(51.04% 0.1823 259.86);
+  --app-accent-contrast: oklch(100% 0 0);
+  --app-danger: oklch(54.44% 0.1883 27.24);
+  --app-warning: oklch(50.78% 0.108 73.3);
+  --app-success: oklch(49.63% 0.118 154.26);
+  --app-shadow: 0 1px 2px oklch(0% 0 0 / 0.06);
+  --app-overlay: oklch(100% 0 0 / 0.82);
+
+  /* Selected state. `accent` on a 12-15% accent tint only reaches ~3.3:1, so
+     selection gets its own background/foreground pair, measured at 8.4:1. */
+  --app-selected-bg: oklch(93% 0.035 258);
+  --app-selected-border: oklch(72% 0.12 260);
+  --app-selected-text: oklch(38% 0.15 262);
+  --app-selected-muted: oklch(46% 0.1 264);
+}
+
+.dark {
+  color-scheme: dark;
+
+  --app-canvas: oklch(15.88% 0.0045 264.44);
+  --app-panel: oklch(20.04% 0.0062 271.1);
+  --app-elevated: oklch(25.11% 0.0064 258.36);
+  --app-hover: oklch(28.87% 0.0078 264.44);
+  --app-border: oklch(30.08% 0.0077 264.45);
+  --app-border-strong: oklch(37.94% 0.0105 271.13);
+  --app-text: oklch(96.97% 0.0017 247.84);
+  --app-muted: oklch(71.1% 0.0143 262.37);
+  --app-subtle: oklch(65.13% 0.0151 258.36);
+  --app-accent: oklch(67.99% 0.1603 254.01);
+  --app-accent-strong: oklch(75.52% 0.1295 251.72);
+  --app-accent-contrast: oklch(17.01% 0.0201 252.19);
+  --app-danger: oklch(65.08% 0.1905 25.1);
+  --app-warning: oklch(77.91% 0.1498 84.74);
+  --app-success: oklch(72.13% 0.1505 154.93);
+  --app-shadow: 0 1px 2px oklch(0% 0 0 / 0.4);
+  --app-overlay: oklch(17% 0.005 264 / 0.82);
+
+  /* Measured at 8.9:1 against the dark selection tint. */
+  --app-selected-bg: oklch(32% 0.055 258);
+  --app-selected-border: oklch(55% 0.1 256);
+  --app-selected-text: oklch(88% 0.06 250);
+  --app-selected-muted: oklch(76% 0.05 250);
+}
+
+@theme inline {
   --font-sans:
     ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
     'Helvetica Neue', Arial, sans-serif;
@@ -8,35 +79,35 @@
     ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono',
     monospace;
 
-  /* Semantic surface tokens — a dark, low-glare developer tool palette.
-     Every text/background pair below meets WCAG AA (>= 4.5:1) on the
-     surfaces it is used on; `subtle` is the dimmest compliant step. */
-  --color-app-canvas: oklch(0.16 0.005 264);
-  --color-app-panel: oklch(0.2 0.006 264);
-  --color-app-elevated: oklch(0.25 0.007 264);
-  --color-app-hover: oklch(0.29 0.008 264);
-  --color-app-border: oklch(0.3 0.008 264);
-  --color-app-border-strong: oklch(0.38 0.01 264);
-  --color-app-text: oklch(0.97 0.002 264);
-  --color-app-muted: oklch(0.71 0.014 264);
-  --color-app-subtle: oklch(0.6513 0.0151 258.36);
-  --color-app-accent: oklch(0.68 0.16 254);
-  --color-app-accent-strong: oklch(0.76 0.16 254);
-  --color-app-accent-contrast: oklch(0.17 0.02 254);
-  --color-app-danger: oklch(0.65 0.19 25);
-  --color-app-warning: oklch(0.78 0.15 85);
-  --color-app-success: oklch(0.72 0.15 155);
+  --color-app-canvas: var(--app-canvas);
+  --color-app-panel: var(--app-panel);
+  --color-app-elevated: var(--app-elevated);
+  --color-app-hover: var(--app-hover);
+  --color-app-border: var(--app-border);
+  --color-app-border-strong: var(--app-border-strong);
+  --color-app-text: var(--app-text);
+  --color-app-muted: var(--app-muted);
+  --color-app-subtle: var(--app-subtle);
+  --color-app-accent: var(--app-accent);
+  --color-app-accent-strong: var(--app-accent-strong);
+  --color-app-accent-contrast: var(--app-accent-contrast);
+  --color-app-danger: var(--app-danger);
+  --color-app-warning: var(--app-warning);
+  --color-app-success: var(--app-success);
+  --color-app-selected-bg: var(--app-selected-bg);
+  --color-app-selected-border: var(--app-selected-border);
+  --color-app-selected-text: var(--app-selected-text);
+  --color-app-selected-muted: var(--app-selected-muted);
 }
 
 @layer base {
   html {
-    color-scheme: dark;
     -webkit-tap-highlight-color: transparent;
   }
 
   body {
-    background-color: var(--color-app-canvas);
-    color: var(--color-app-text);
+    background-color: var(--app-canvas);
+    color: var(--app-text);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
@@ -45,7 +116,7 @@
 
   /* Consistent, unobtrusive focus ring across the whole tool. */
   :focus-visible {
-    outline: 2px solid var(--color-app-accent);
+    outline: 2px solid var(--app-accent);
     outline-offset: 2px;
   }
 
@@ -63,7 +134,7 @@
 
 @utility scrollbar-slim {
   scrollbar-width: thin;
-  scrollbar-color: var(--color-app-border-strong) transparent;
+  scrollbar-color: var(--app-border-strong) transparent;
 
   &::-webkit-scrollbar {
     width: 8px;
@@ -75,7 +146,7 @@
   }
 
   &::-webkit-scrollbar-thumb {
-    background-color: var(--color-app-border-strong);
+    background-color: var(--app-border-strong);
     border-radius: 9999px;
   }
 }
@@ -85,7 +156,7 @@
 @utility preview-grid {
   background-image: radial-gradient(
     circle at 1px 1px,
-    color-mix(in oklab, var(--color-app-border) 90%, transparent) 1px,
+    color-mix(in oklab, var(--app-border) 90%, transparent) 1px,
     transparent 0
   );
   background-size: 16px 16px;
@@ -105,6 +176,15 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
   .rt-dialog {
     transition: none;
   }

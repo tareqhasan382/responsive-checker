@@ -83,7 +83,7 @@ export function ZoomControls({ zoom, heightMode }: ZoomControlsProps) {
               className={cn(
                 'rounded-none',
                 active &&
-                  'bg-app-accent/15 text-app-accent hover:bg-app-accent/20',
+                  'bg-app-selected-bg text-app-selected-text hover:bg-app-selected-bg',
               )}
               onClick={() => zoom.setMode(option.mode)}
             />
@@ -118,7 +118,7 @@ export function ZoomControls({ zoom, heightMode }: ZoomControlsProps) {
                 className={cn(
                   'rounded px-1 py-1.5 font-mono text-[11px] tabular-nums transition-colors',
                   active
-                    ? 'bg-app-accent/15 text-app-accent'
+                    ? 'bg-app-selected-bg text-app-selected-text'
                     : 'text-app-muted hover:bg-app-elevated hover:text-app-text',
                 )}
               >

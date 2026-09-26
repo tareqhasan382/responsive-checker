@@ -1,117 +1,148 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 
-import { DevicePresetList } from '@/components/device/DevicePresetList';
-import { CATEGORY_ICONS } from '@/components/device/DevicePresetButton';
+import { DeviceChip } from '@/components/device/DeviceChip';
 import { Button } from '@/components/ui/Button';
-import { ChevronDownIcon, FrameIcon } from '@/components/ui/icons';
-import { Popover } from '@/components/ui/Popover';
+import { FrameIcon } from '@/components/ui/icons';
+import {
+  VIEWPORT_CATEGORIES,
+  VIEWPORT_CATEGORY_LABELS,
+} from '@/config/viewport-presets';
 import type { UseViewportResult } from '@/hooks/useViewport';
-import type { ViewportPreset } from '@/types/viewport';
 import { cn } from '@/lib/cn';
-import { formatSize } from '@/utils/viewport';
+import type { ViewportCategory, ViewportPreset } from '@/types/viewport';
 import { CustomViewportDialog } from './CustomViewportDialog';
 
-const GROUP_ORDER = [
-  'custom',
-  'mobile',
-  'tablet',
-  'laptop',
-  'desktop',
-] as const;
+/** The categories that have a tab. `custom` sizes get their own saved row. */
+type PickerCategory = Exclude<ViewportCategory, 'custom'>;
 
 export interface ViewportSelectorProps {
   readonly viewport: UseViewportResult;
 }
 
+/**
+ * Device picker: a category filter plus a grid of size chips.
+ *
+ * The active category is derived from the current selection on first render so
+ * that a restored viewport (or a `?url=` deep link) shows the tab it belongs
+ * to, then the user is free to browse any other tab.
+ */
 export function ViewportSelector({ viewport }: ViewportSelectorProps) {
-  const [open, setOpen] = useState(false);
-  const [customOpen, setCustomOpen] = useState(false);
-  const triggerRef = useRef<HTMLButtonElement>(null);
+  const initialCategory = viewport.activePreset?.category;
+  const [category, setCategory] = useState<PickerCategory>(
+    initialCategory === 'mobile' ||
+      initialCategory === 'tablet' ||
+      initialCategory === 'desktop' ||
+      initialCategory === '2k' ||
+      initialCategory === '4k'
+      ? initialCategory
+      : 'mobile',
+  );
+  const [dialogOpen, setDialogOpen] = useState(false);
 
-  const grouped = GROUP_ORDER.map((category) => ({
-    category,
-    presets: viewport.presets.filter((preset) => preset.category === category),
-  }));
+  const presets = viewport.presets.filter(
+    (preset) => preset.category === category,
+  );
+  const customViewports = viewport.presets.filter(
+    (preset) => preset.isCustom === true,
+  );
 
   const handleSelect = (preset: ViewportPreset) => {
     viewport.selectPreset(preset);
-    setOpen(false);
   };
 
-  const ActiveIcon =
-    CATEGORY_ICONS[viewport.activePreset?.category ?? 'custom'];
+  const handleCategoryChange = (option: PickerCategory) => {
+    setCategory(option);
+    const firstPreset = viewport.presets.find(
+      (preset) => preset.category === option,
+    );
+    if (firstPreset) viewport.selectPreset(firstPreset);
+  };
 
   return (
     <>
-      <button
-        ref={triggerRef}
-        type="button"
-        aria-haspopup="dialog"
-        aria-expanded={open}
-        onClick={() => setOpen((current) => !current)}
-        className="border-app-border bg-app-elevated text-app-text hover:border-app-border-strong hover:bg-app-hover flex h-9 items-center gap-2 rounded-md border pr-2 pl-3 text-sm transition-colors duration-150"
-      >
-        <ActiveIcon className="text-app-accent text-sm" />
-        <span className="max-w-40 truncate font-medium">
-          {viewport.activeLabel}
-        </span>
-        <span className="text-app-subtle font-mono text-[11px] tabular-nums">
-          {formatSize(viewport.size)}
-        </span>
-        <ChevronDownIcon
-          className={cn(
-            'text-app-subtle ml-0.5 transition-transform duration-150',
-            open && 'rotate-180',
-          )}
-        />
-      </button>
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5">
+        <div
+          role="group"
+          aria-label="Device category"
+          className="border-app-border bg-app-elevated flex w-full items-center overflow-hidden rounded-lg border p-0.5"
+        >
+          {VIEWPORT_CATEGORIES.map((option) => {
+            const active = option === category;
+            return (
+              <button
+                key={option}
+                type="button"
+                aria-pressed={active}
+                onClick={() => handleCategoryChange(option)}
+                className={cn(
+                  'relative h-8 flex-1 rounded-md px-2 text-xs font-medium transition-all duration-150',
+                  active
+                    ? 'bg-app-selected-bg text-app-selected-text shadow-sm'
+                    : 'text-app-muted hover:bg-app-hover hover:text-app-text',
+                )}
+              >
+                {VIEWPORT_CATEGORY_LABELS[option]}
+              </button>
+            );
+          })}
+        </div>
 
-      <Popover
-        open={open}
-        onClose={() => setOpen(false)}
-        anchorRef={triggerRef}
-        align="start"
-        className="w-72 p-1"
+        <Button
+          size="sm"
+          variant="outline"
+          icon={<FrameIcon />}
+          onClick={() => setDialogOpen(true)}
+          className="w-full"
+        >
+          Custom size
+        </Button>
+      </div>
+
+      <div
+        role="group"
+        aria-label={`${VIEWPORT_CATEGORY_LABELS[category]} viewports`}
+        className="mt-1.5 flex flex-wrap gap-1.5"
       >
-        <div role="dialog" aria-label="Choose a viewport">
-          {grouped.map(({ category, presets }) => (
-            <DevicePresetList
-              key={category}
-              category={category}
-              presets={presets}
-              activePresetId={viewport.activePreset?.id ?? null}
+        {presets.map((preset) => (
+          <DeviceChip
+            key={preset.id}
+            preset={preset}
+            active={preset.id === viewport.activePreset?.id}
+            onSelect={handleSelect}
+          />
+        ))}
+      </div>
+
+      {customViewports.length > 0 ? (
+        <div
+          role="group"
+          aria-label="Saved custom viewports"
+          className="mt-1.5 flex flex-wrap items-center gap-1.5"
+        >
+          <span className="text-app-subtle pr-0.5 text-[10px] tracking-wide uppercase">
+            Saved
+          </span>
+          {customViewports.map((preset) => (
+            <DeviceChip
+              key={preset.id}
+              preset={preset}
+              active={preset.id === viewport.activePreset?.id}
               onSelect={handleSelect}
             />
           ))}
         </div>
-        <div className="border-app-border bg-app-panel sticky bottom-0 border-t p-1">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="w-full justify-start"
-            icon={<FrameIcon />}
-            onClick={() => {
-              setOpen(false);
-              setCustomOpen(true);
-            }}
-          >
-            Custom size…
-          </Button>
-        </div>
-      </Popover>
+      ) : null}
 
       <CustomViewportDialog
-        open={customOpen}
-        onClose={() => setCustomOpen(false)}
+        open={dialogOpen}
+        onClose={() => setDialogOpen(false)}
         currentSize={viewport.baseSize}
-        customViewports={viewport.presets.filter(
-          (preset) => preset.isCustom === true,
-        )}
+        customViewports={customViewports}
         onSubmit={(input) => {
           viewport.addCustomViewport(input);
-          setCustomOpen(false);
+          setDialogOpen(false);
         }}
         onRemove={viewport.removeCustomViewport}
       />

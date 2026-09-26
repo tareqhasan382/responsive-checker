@@ -3,12 +3,7 @@
 import { useCallback, useState } from 'react';
 
 import { Button } from '@/components/ui/Button';
-import {
-  AlertIcon,
-  ExternalLinkIcon,
-  GlobeIcon,
-  ReloadIcon,
-} from '@/components/ui/icons';
+import { AlertIcon, ExternalLinkIcon, ReloadIcon } from '@/components/ui/icons';
 import type { FrameStatus } from '@/types/app';
 import type { Size } from '@/types/viewport';
 import { PREVIEW_GUTTER } from '@/utils/constants';
@@ -30,11 +25,11 @@ export interface ViewportPreviewProps {
 type BlockingStatus = Exclude<FrameStatus, 'empty' | 'ready'>;
 
 const STATUS_MESSAGES: Record<BlockingStatus, string> = {
-  loading: 'Loading the page…',
+  loading: 'Loading preview…',
   error:
-    'The page could not be loaded. Check the URL and that the site is running.',
+    'This website cannot be displayed in an embedded preview. It may be blocking iframe embedding with a security policy such as X-Frame-Options or CSP — that is the site’s choice, not a fault here. You can also check that the URL is correct and the server is running.',
   stalled:
-    'Still loading after a few seconds. Sites that send an X-Frame-Options or frame-ancestors CSP header refuse to be embedded — open the target in a new tab to confirm.',
+    'This website is taking a while to respond inside the frame. Many sites block iframe embedding with X-Frame-Options or a frame-ancestors CSP rule, which stops the preview from ever loading. Open it in a new tab to confirm it works.',
 };
 
 export function ViewportPreview({
@@ -72,13 +67,15 @@ export function ViewportPreview({
             className="relative shrink-0"
             style={{ width: display.width, height: display.height }}
           >
+            {/*
+              Sized to the logical viewport and positioned at the origin. The
+              visual scale is applied by the iframe itself, so it must not be
+              applied here as well — two nested scales would compound into
+              zoom squared.
+            */}
             <div
-              className="absolute top-0 left-0 origin-top-left"
-              style={{
-                width: content.width,
-                height: content.height,
-                transform: `scale(${zoom})`,
-              }}
+              className="absolute top-0 left-0"
+              style={{ width: content.width, height: content.height }}
             >
               <ViewportFrame
                 src={target}
@@ -179,15 +176,13 @@ function Skeleton() {
 
 function EmptyState() {
   return (
-    <div className="border-app-border bg-app-panel/40 max-w-md rounded-xl border border-dashed px-8 py-10 text-center">
-      <GlobeIcon className="text-app-subtle mx-auto text-2xl" />
-      <h2 className="text-app-text mt-3 text-sm font-semibold">
-        Ready to test a page
-      </h2>
-      <p className="text-app-muted mt-1.5 text-xs leading-relaxed">
-        Enter a URL above, pick a device size and the page renders right here.
-        Nothing is uploaded — the frame loads the site directly from your
-        browser.
+    <div className="max-w-sm px-6 text-center">
+      <h2 className="text-base font-semibold">Responsive UI Tester</h2>
+      <p className="text-app-muted mt-2 text-sm leading-relaxed">
+        Test your website across mobile, tablet, desktop, 2K and 4K viewports.
+      </p>
+      <p className="text-app-subtle mt-1 text-xs leading-relaxed">
+        Enter a URL above to get started. Everything runs in your browser.
       </p>
     </div>
   );

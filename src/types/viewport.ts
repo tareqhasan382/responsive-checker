@@ -4,7 +4,7 @@ export interface Size {
 }
 
 export type ViewportCategory =
-  'mobile' | 'tablet' | 'laptop' | 'desktop' | 'custom';
+  'mobile' | 'tablet' | 'desktop' | '2k' | '4k' | 'custom';
 
 export interface ViewportPreset {
   /** Stable identifier, also used as the localStorage key for custom presets. */
