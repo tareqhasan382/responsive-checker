@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { FormEvent } from 'react';
 
 import { AppShell } from '@/components/layout/AppShell';
+import { SidebarAuthorCard } from '@/components/layout/SidebarAuthorCard';
 import { Button } from '@/components/ui/Button';
 import { IconButton } from '@/components/ui/IconButton';
 import { Input } from '@/components/ui/Input';
@@ -109,13 +110,16 @@ export default function HomePage() {
   };
 
   const collapsed = sidebarCollapsed.value;
-  const toggleSidebar = () =>
-    sidebarCollapsed.setValue((current) => !current);
+  const toggleSidebar = () => sidebarCollapsed.setValue((current) => !current);
 
   return (
     <AppShell
       headerContent={
-        <form onSubmit={handleSubmit} noValidate className="mx-1.5 flex min-w-0 items-center gap-1.5">
+        <form
+          onSubmit={handleSubmit}
+          noValidate
+          className="mx-0.5 flex min-w-0 items-center gap-1 sm:mx-1.5 sm:gap-1.5"
+        >
           <div className="min-w-0 flex-1">
             <label className="sr-only">Website URL to test</label>
             <Input
@@ -146,97 +150,116 @@ export default function HomePage() {
         <aside
           className={
             collapsed
-              ? 'border-app-border bg-app-panel shrink-0 border-r w-10'
-              : 'border-app-border bg-app-panel scrollbar-slim shrink-0 overflow-y-auto border-r w-64'
+              ? 'border-app-border bg-app-panel flex w-10 shrink-0 flex-col border-r'
+              : 'border-app-border bg-app-panel flex w-64 shrink-0 flex-col border-r'
           }
         >
           {collapsed ? (
-            <div className="flex flex-col items-center gap-2 p-1.5">
-              <button
-                type="button"
-                onClick={toggleSidebar}
-                aria-label="Expand device sidebar"
-                title="Expand device sidebar"
-                className="group border-app-border bg-app-canvas text-app-muted hover:border-app-accent hover:text-app-accent flex size-7 shrink-0 items-center justify-center rounded-md border transition-colors duration-150"
-              >
-                <ChevronRightIcon className="text-[13px]" />
-              </button>
-            </div>
-          ) : (
-            <div className="flex flex-col gap-2.5 p-2">
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex min-w-0 flex-1 items-center gap-1.5">
-                  <span
-                    className="text-app-accent-contrast flex size-6 shrink-0 items-center justify-center rounded-md"
-                    style={{
-                      backgroundImage:
-                        'linear-gradient(135deg, var(--app-accent), var(--app-accent-strong))',
-                    }}
-                  >
-                    <ChevronRightIcon className="text-[12px]" />
-                  </span>
-                  <div className="min-w-0 flex-1 flex-col">
-                    <span className="text-app-text truncate text-[12px] font-semibold leading-tight tracking-tight">
-                      Devices
-                    </span>
-                    <span className="text-app-subtle truncate text-[10px] leading-tight">
-                      {viewport.activeLabel}
-                    </span>
-                  </div>
-                </div>
+            <>
+              <div className="flex flex-col items-center gap-2 p-1.5">
                 <button
                   type="button"
                   onClick={toggleSidebar}
-                  aria-label="Collapse device sidebar"
-                  title="Collapse device sidebar"
-                  className="group border-app-border bg-app-canvas text-app-muted hover:border-app-accent hover:text-app-accent shrink-0 flex items-center gap-0.5 rounded-md border px-1.5 py-1 text-[10.5px] font-medium transition-colors duration-150"
+                  aria-label="Expand device sidebar"
+                  title="Expand device sidebar"
+                  className="group border-app-border bg-app-canvas text-app-muted hover:border-app-accent hover:text-app-accent flex size-7 shrink-0 items-center justify-center rounded-md border transition-colors duration-150"
                 >
-                  <ChevronLeftIcon className="text-[12px]" />
+                  <ChevronRightIcon className="text-[13px]" />
                 </button>
               </div>
 
-              <ViewportSelector viewport={viewport} />
-
-              <div className="border-app-border border-t pt-2">
-                <ViewportControls viewport={viewport} />
+              <div className="mt-auto flex justify-center p-1.5">
+                <SidebarAuthorCard collapsed />
               </div>
+            </>
+          ) : (
+            <>
+              <div className="scrollbar-slim min-h-0 flex-1 overflow-y-auto">
+                <div className="flex flex-col gap-2.5 p-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex min-w-0 flex-1 items-center gap-1.5">
+                      <span
+                        className="text-app-accent-contrast flex size-6 shrink-0 items-center justify-center rounded-md"
+                        style={{
+                          backgroundImage:
+                            'linear-gradient(135deg, var(--app-accent), var(--app-accent-strong))',
+                        }}
+                      >
+                        <ChevronRightIcon className="text-[12px]" />
+                      </span>
+                      <div className="min-w-0 flex-1 flex-col">
+                        <span className="text-app-text truncate text-[12px] leading-tight font-semibold tracking-tight">
+                          Devices
+                        </span>
+                        <span className="text-app-subtle truncate text-[10px] leading-tight">
+                          {viewport.activeLabel}
+                        </span>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={toggleSidebar}
+                      aria-label="Collapse device sidebar"
+                      title="Collapse device sidebar"
+                      className="group border-app-border bg-app-canvas text-app-muted hover:border-app-accent hover:text-app-accent flex shrink-0 items-center gap-0.5 rounded-md border px-1.5 py-1 text-[10.5px] font-medium transition-colors duration-150"
+                    >
+                      <ChevronLeftIcon className="text-[12px]" />
+                    </button>
+                  </div>
 
-              <div className="border-app-border border-t pt-2">
-                <h3 className="text-app-subtle mb-1 text-[10.5px] font-medium tracking-wide uppercase">
-                  Zoom
-                </h3>
-                <ZoomControls zoom={zoom} heightMode={viewport.heightMode} />
-              </div>
+                  <ViewportSelector viewport={viewport} />
 
-              <div className="border-app-border border-t pt-2">
-                <h3 className="text-app-subtle mb-1 text-[10.5px] font-medium tracking-wide uppercase">
-                  Actions
-                </h3>
-                <div className="flex flex-wrap items-center gap-1.5">
-                  <span className="border-app-border bg-app-elevated text-app-muted rounded-md border px-1.5 py-0.5 font-mono text-[10.5px] tabular-nums">
-                    {formatSize(viewport.size)}
-                  </span>
-                  <IconButton
-                    label="Reload the page in the frame (R)"
-                    icon={<ReloadIcon />}
-                    disabled={url.target === null}
-                    onClick={handleReload}
-                  />
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    icon={<ExternalLinkIcon />}
-                    disabled={url.target === null}
-                    onClick={() => {
-                      if (url.target !== null)
-                        window.open(url.target, '_blank', 'noopener,noreferrer');
-                    }}
-                  >
-                    Open
-                  </Button>
+                  <div className="border-app-border border-t pt-2">
+                    <ViewportControls viewport={viewport} />
+                  </div>
+
+                  <div className="border-app-border border-t pt-2">
+                    <h3 className="text-app-subtle mb-1 text-[10.5px] font-medium tracking-wide uppercase">
+                      Zoom
+                    </h3>
+                    <ZoomControls
+                      zoom={zoom}
+                      heightMode={viewport.heightMode}
+                    />
+                  </div>
+
+                  <div className="border-app-border border-t pt-2">
+                    <h3 className="text-app-subtle mb-1 text-[10.5px] font-medium tracking-wide uppercase">
+                      Actions
+                    </h3>
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <span className="border-app-border bg-app-elevated text-app-muted rounded-md border px-1.5 py-0.5 font-mono text-[10.5px] tabular-nums">
+                        {formatSize(viewport.size)}
+                      </span>
+                      <IconButton
+                        label="Reload the page in the frame (R)"
+                        icon={<ReloadIcon />}
+                        disabled={url.target === null}
+                        onClick={handleReload}
+                      />
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        icon={<ExternalLinkIcon />}
+                        disabled={url.target === null}
+                        onClick={() => {
+                          if (url.target !== null)
+                            window.open(
+                              url.target,
+                              '_blank',
+                              'noopener,noreferrer',
+                            );
+                        }}
+                      >
+                        Open
+                      </Button>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
+
+              <SidebarAuthorCard />
+            </>
           )}
         </aside>
 

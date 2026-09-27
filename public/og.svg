@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="Responsive Tester — Test Your Website at Any Screen Size">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#14141d" />
+      <stop offset="100%" stop-color="#1c1c28" />
+    </linearGradient>
+    <radialGradient id="glowA" cx="0.12" cy="0.08" r="0.62">
+      <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.34" />
+      <stop offset="100%" stop-color="#3b82f6" stop-opacity="0" />
+    </radialGradient>
+    <radialGradient id="glowB" cx="0.9" cy="0.95" r="0.58">
+      <stop offset="0%" stop-color="#7aa5ff" stop-opacity="0.24" />
+      <stop offset="100%" stop-color="#7aa5ff" stop-opacity="0" />
+    </radialGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#7aa5ff" />
+      <stop offset="100%" stop-color="#3b82f6" />
+    </linearGradient>
+    <linearGradient id="title" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="100%" stop-color="#c9d8ff" />
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#bg)" />
+  <rect width="1200" height="630" fill="url(#glowA)" />
+  <rect width="1200" height="630" fill="url(#glowB)" />
+
+  <!-- Logo mark, matching app/icon.svg -->
+  <g transform="translate(84 84) scale(1.5)">
+    <rect x="4.5" y="6.5" width="15" height="19" rx="2" fill="none" stroke="#7aa5ff" stroke-width="1.8" />
+    <path d="M10 22.5h4" stroke="#7aa5ff" stroke-width="1.8" stroke-linecap="round" />
+    <rect x="21.5" y="9.5" width="6" height="13" rx="1.5" fill="none" stroke="#3b82f6" stroke-width="1.6" />
+  </g>
+
+  <text x="150" y="118" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif" font-size="27" font-weight="600" fill="#e8ecf7">Responsive Tester</text>
+
+  <text x="84" y="290" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif" font-size="76" font-weight="800" letter-spacing="-2" fill="url(#title)">Test any site at</text>
+  <text x="84" y="376" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif" font-size="76" font-weight="800" letter-spacing="-2" fill="url(#title)">every screen size</text>
+
+  <text x="84" y="438" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif" font-size="30" font-weight="400" fill="#9aa6c4">Mobile · Tablet · Laptop · Desktop · 2K · 4K · Smart TV</text>
+
+  <!-- Feature pills -->
+  <g font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif" font-size="23" font-weight="500">
+    <rect x="84" y="486" width="196" height="52" rx="26" fill="none" stroke="#3a3a4d" stroke-width="1.5" />
+    <text x="182" y="519" fill="#c3cbe0" text-anchor="middle">No backend</text>
+
+    <rect x="300" y="486" width="196" height="52" rx="26" fill="none" stroke="#3a3a4d" stroke-width="1.5" />
+    <text x="398" y="519" fill="#c3cbe0" text-anchor="middle">100% in browser</text>
+
+    <rect x="516" y="486" width="230" height="52" rx="26" fill="none" stroke="#3a3a4d" stroke-width="1.5" />
+    <text x="631" y="519" fill="#c3cbe0" text-anchor="middle">No signup required</text>
+  </g>
+
+  <rect x="84" y="574" width="150" height="3" rx="1.5" fill="url(#accent)" />
+  <text x="84" y="600" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="20" fill="#6b7794">responsive-checker-test.vercel.app</text>
+</svg>

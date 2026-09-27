@@ -1,17 +1,36 @@
 # Responsive UI Tester
 
+[![Live preview](https://img.shields.io/badge/Live%20preview-responsive--checker--test.vercel.app-3b82f6?style=flat-square)](https://responsive-checker-test.vercel.app)
+[![Next.js](https://img.shields.io/badge/Next.js-16-000000?style=flat-square&logo=next.js)](https://nextjs.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6?style=flat-square&logo=typescript)](https://www.typescriptlang.org)
+
 Load any URL in an exact-size viewport and check how it responds — media queries,
 `vw`/`vh` units, and layout breakpoints evaluated against a real device width.
 Runs entirely in the browser.
+
+## 🔗 Live preview
+
+**https://responsive-checker-test.vercel.app**
+
+[![Preview screenshot of the Responsive Tester app](docs/preview.png)](https://responsive-checker-test.vercel.app)
+
+<sub>Screenshot captured from the app at 1440 × 900 (2× DPR).</sub>
+
+## ✨ Features
 
 - **No backend.** No database, auth, or external API calls.
 - **Correct measurement.** The iframe is laid out at the exact logical device
   size in CSS pixels and scaled visually, so media queries always resolve
   against the device viewport rather than the window size.
-- **16 built-in device presets** plus a custom viewport dialog and one-click
-  portrait/landscape rotation.
+- **29 built-in device presets** (mobile → 4K → Smart TV) plus a custom viewport
+  dialog and one-click portrait/landscape rotation.
 - **Shareable state.** The target URL is mirrored into `?url=`, and your viewport
   setup persists in `localStorage`.
+- **App-router states.** Purpose-built `loading.tsx` skeleton, `not-found.tsx`,
+  and `error.tsx` pages, plus complete Open Graph / Twitter SEO metadata.
+- **Light & dark themes** that follow the system preference, with no flash of
+  the wrong theme on first paint.
+- **Keyboard friendly.** Press `R` to reload the framed page.
 
 ## Requirements
 
@@ -108,22 +127,29 @@ allow-popups allow-popups-to-escape-sandbox allow-modals allow-downloads`.
 ## Project structure
 
 ```
-src/
-├── app/                    # Next.js App Router entry, global styles, icon
-│   ├── layout.tsx          # Root layout, metadata, viewport theme color
-│   ├── page.tsx            # Client orchestration: measure pane, geometry, status
-│   └── globals.css         # Tailwind v4 @theme tokens + utilities
-├── components/
-│   ├── device/             # Device preset button + list
-│   ├── layout/             # App shell (header / toolbar / pane / status) and header
-│   ├── ui/                 # Button, IconButton, Input, Tooltip, Dialog, Popover, icons
-│   ├── url/                # URL bar, quick-target chips, validation message
-│   └── viewport/           # Toolbar, preset picker, frame, preview pane, zoom controls
-├── config/                 # Device presets and categories
-├── hooks/                  # Persistent state, element size, target URL, viewport, zoom
-├── lib/                    # `cn` class-name helper (no runtime dependencies)
-├── types/                  # Shared view types
-└── utils/                  # URL normalization/validation, viewport math, constants
+├── public/
+│   └── og.svg                # Open Graph / Twitter card image (1200×630)
+├── docs/
+│   └── preview.png           # README screenshot
+└── src/
+    ├── app/                  # Next.js App Router entry, global styles, icon
+    │   ├── layout.tsx        # Root layout, SEO metadata, viewport theme color
+    │   ├── page.tsx          # Client orchestration: measure pane, geometry, sidebar
+    │   ├── loading.tsx       # Global skeleton mirroring the real app shell
+    │   ├── not-found.tsx     # 404 page (server component, static HTML)
+    │   ├── error.tsx         # Error boundary UI with retry / reload
+    │   └── globals.css       # Tailwind v4 @theme tokens + utilities
+    ├── components/
+    │   ├── device/           # Device preset button + list
+    │   ├── layout/           # App shell, header, error boundary, sidebar author card
+    │   ├── ui/               # Button, IconButton, Input, Tooltip, Dialog, Popover, icons
+    │   ├── url/              # URL bar, quick-target chips, validation message
+    │   └── viewport/         # Toolbar, preset picker, frame, preview pane, zoom controls
+    ├── config/               # Site/author attribution, theme, device presets
+    ├── hooks/                # Persistent state, element size, target URL, viewport, zoom
+    ├── lib/                  # `cn` class-name helper (no runtime dependencies)
+    ├── types/                # Shared view types
+    └── utils/                # URL normalization/validation, viewport math, constants
 ```
 
 ## Adding a device preset
@@ -135,12 +161,16 @@ sizes only — the toolbar derives landscape by rotating:
 {
   id: 'pixel-fold',
   label: 'Pixel Fold',
-  category: 'mobile',   // 'mobile' | 'tablet' | 'laptop' | 'desktop'
+  // 'mobile' | 'tablet' | 'desktop' | '2k' | '4k' | 'tv' | 'custom'
+  category: 'mobile',
   width: 412,
   height: 915,
   devicePixelRatio: 2.625,
 },
 ```
+
+`VIEWPORT_CATEGORIES` controls the order of the category tabs; add the new key
+there as well if you introduce a new category.
 
 To change the overall zoom limits or storage keys, edit
 `src/utils/constants.ts`.
@@ -162,6 +192,8 @@ lint`. If you upgrade TypeScript, upgrade `typescript-eslint` in the same
 
 ## Deployment
 
+Live deployment: **https://responsive-checker-test.vercel.app**
+
 Deploys to Vercel with no configuration:
 
 ```bash
@@ -172,7 +204,25 @@ Or push to a Git repository connected to Vercel — the default Next.js preset
 builds and serves it as a static site. The app has no server-side code, no
 environment variables, and no secrets, so there is nothing else to configure.
 
+The canonical URL, title, and description live in `src/config/site.ts`. That
+module is the single source of truth — `layout.tsx` imports from it to build the
+SEO metadata, and the sidebar author card reads the GitHub handle from it, so
+the URL can never drift between the metadata and the UI. If you fork this
+project, update `SITE_URL` there first.
+
 Note that when you test _your_ deployed app, make sure that app's framing
 headers permit embedding. If it sends `X-Frame-Options: SAMEORIGIN` and you
 deploy both the tester and the app to the same Vercel account, you may still be
 blocked — deploy the tester elsewhere or relax the header for your own testing.
+
+## Author
+
+Built by **[Tareq Hasan](https://github.com/tareqhasan382)**.
+
+[![GitHub](https://img.shields.io/badge/GitHub-tareqhasan382-181717?style=flat-square&logo=github)](https://github.com/tareqhasan382)
+[![Source](https://img.shields.io/badge/source-responsive--checker-3b82f6?style=flat-square)](https://github.com/tareqhasan382/responsive-checker)
+
+## License
+
+No license file is currently published for this project. Add one (MIT, Apache-2.0,
+etc.) before distributing it.

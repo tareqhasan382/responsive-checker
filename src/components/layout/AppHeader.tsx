@@ -26,7 +26,7 @@ export function AppHeader({ children }: AppHeaderProps) {
         <GlobeIcon className="text-[13px]" />
       </span>
 
-      <h1 className="truncate text-[13px] leading-tight font-semibold tracking-tight">
+      <h1 className="hidden text-[13px] leading-tight font-semibold tracking-tight sm:block">
         Responsive Tester
       </h1>
 

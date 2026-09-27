@@ -3,17 +3,27 @@ import Script from 'next/script';
 import type { ReactNode } from 'react';
 
 import { ErrorBoundary } from '@/components/layout/ErrorBoundary';
+import {
+  APP_NAME,
+  APP_SHORT_NAME,
+  SITE_DESCRIPTION,
+  SITE_TITLE,
+  SITE_URL,
+} from '@/config/site';
 import { THEME_INIT_SCRIPT } from '@/config/theme';
 import './globals.css';
 
-const TITLE = 'Responsive Tester — Test Your Website at Any Screen Size';
-const DESCRIPTION =
-  'A lightweight browser-based responsive UI testing tool for mobile, tablet, desktop, 2K and 4K viewports. No backend, no uploads.';
+const SHORT_TITLE = APP_SHORT_NAME;
 
 export const metadata: Metadata = {
-  title: TITLE,
-  description: DESCRIPTION,
-  applicationName: 'Responsive Tester',
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: SITE_TITLE,
+    template: `%s · ${SHORT_TITLE}`,
+  },
+  description: SITE_DESCRIPTION,
+  applicationName: APP_NAME,
+  category: 'Developer Tools',
   keywords: [
     'responsive design',
     'responsive tester',
@@ -21,26 +31,64 @@ export const metadata: Metadata = {
     'device preview',
     'responsive ui testing',
     'screen size preview',
+    'mobile preview',
+    'tablet preview',
+    'desktop preview',
+    '4k viewport',
+    'smart tv viewport',
+    'frontend testing',
+    'ui testing',
+    'cross device',
   ],
-  authors: [{ name: 'Responsive Tester' }],
+  authors: [{ name: SHORT_TITLE, url: SITE_URL }],
+  creator: SHORT_TITLE,
+  publisher: SHORT_TITLE,
+  alternates: { canonical: '/' },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-image-preview': 'large',
+      'max-video-preview': -1,
+      'max-snippet': -1,
+    },
+  },
   openGraph: {
     type: 'website',
-    title: TITLE,
-    description: DESCRIPTION,
-    siteName: 'Responsive Tester',
-    locale: 'en',
+    url: SITE_URL,
+    siteName: SHORT_TITLE,
+    locale: 'en_US',
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    images: [
+      {
+        url: '/og.svg',
+        width: 1200,
+        height: 630,
+        alt: `${SHORT_TITLE} · Responsive UI Testing Tool`,
+      },
+    ],
   },
   twitter: {
-    card: 'summary',
-    title: TITLE,
-    description: DESCRIPTION,
+    card: 'summary_large_image',
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    images: ['/og.svg'],
   },
-  robots: { index: true, follow: true },
+  icons: {
+    icon: '/icon.svg',
+    shortcut: '/icon.svg',
+    apple: '/icon.svg',
+  },
+  manifest: undefined,
 };
 
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
+  maximumScale: 1,
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: '#f6f6f7' },
     { media: '(prefers-color-scheme: dark)', color: '#0c0d0f' },
@@ -55,18 +103,9 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="antialiased">
-        {/*
-          Stamps the stored theme onto <html> before first paint. This has to be
-          a blocking inline script in the document head — anything React renders
-          runs too late, which would show a flash of the wrong theme on every
-          load. `next/script` keeps it out of the component tree and out of the
-          client bundle, so no `dangerouslySetInnerHTML` is needed in app code.
-        */}
         <Script id="theme-init" strategy="beforeInteractive">
           {THEME_INIT_SCRIPT}
         </Script>
-        {/* Sits above every route so an unexpected render error anywhere in the
-            app degrades to a reloadable fallback instead of a blank page. */}
         <ErrorBoundary>{children}</ErrorBoundary>
       </body>
     </html>
