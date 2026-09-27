@@ -101,8 +101,14 @@ export default function RootLayout({
   readonly children: ReactNode;
 }) {
   return (
+    // `suppressHydrationWarning` is required on <html> because the theme
+    // bootstrap script mutates `class`/`style` before React hydrates, and on
+    // <body> because browser extensions (Grammarly writes
+    // `data-gr-ext-installed`, `data-new-gr-c-s-check-loaded`) inject their own
+    // attributes onto it first. In both cases React cannot patch the difference,
+    // so it would otherwise log a hydration mismatch for a change we never made.
     <html lang="en" suppressHydrationWarning>
-      <body className="antialiased">
+      <body className="antialiased" suppressHydrationWarning>
         <Script id="theme-init" strategy="beforeInteractive">
           {THEME_INIT_SCRIPT}
         </Script>
