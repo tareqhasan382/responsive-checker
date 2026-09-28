@@ -4,7 +4,12 @@ import { useCallback, useMemo } from 'react';
 
 import type { FitMode, HeightMode, Size } from '@/types/viewport';
 import { STORAGE_KEYS, ZOOM_MAX, ZOOM_MIN, ZOOM_STEP } from '@/utils/constants';
-import { calculateFitZoom, clamp, snapZoom } from '@/utils/viewport';
+import {
+  calculateFitZoom,
+  calculateFitToWorkspace,
+  clamp,
+  snapZoom,
+} from '@/utils/viewport';
 import { usePersistentState } from './usePersistentState';
 
 function isFitMode(value: unknown): value is FitMode {
@@ -21,6 +26,10 @@ export interface UseZoomOptions {
   /** Selected device size. Only `width` is read while `heightMode` is `auto`. */
   readonly content: Size;
   readonly heightMode: HeightMode;
+  /** Outer size of the complete device chrome + viewport unit. When provided
+   *  the returned zoom is additionally capped so the unit fits the workspace.
+   */
+  readonly presentation?: Size;
 }
 
 export interface UseZoomResult {
@@ -30,6 +39,9 @@ export interface UseZoomResult {
   readonly isFit: boolean;
   readonly canZoomIn: boolean;
   readonly canZoomOut: boolean;
+  /** True when the requested zoom was reduced to keep the unit inside the pane. */
+  readonly workspaceCapped: boolean;
+  readonly workspaceFitScale: number;
   readonly setMode: (mode: FitMode) => void;
   readonly setZoom: (zoom: number) => void;
   readonly stepZoom: (direction: 1 | -1) => void;
@@ -41,11 +53,17 @@ export interface UseZoomResult {
  * The frame is always rendered at its true CSS-pixel size and scaled with a
  * CSS transform, so the target's media queries and `vw`/`vh` units stay
  * correct at any zoom level.
+ *
+ * When `presentation` is supplied the result is additionally capped so the
+ * complete device unit (chrome + viewport) never overflows the workspace —
+ * that guarantee is stronger than a viewport-only screen-fit because the
+ * chrome adds several dozen pixels of bezel around the viewport itself.
  */
 export function useZoom({
   available,
   content,
   heightMode,
+  presentation,
 }: UseZoomOptions): UseZoomResult {
   const storedMode = usePersistentState<FitMode>(
     STORAGE_KEYS.fitMode,
@@ -63,26 +81,41 @@ export function useZoom({
 
   const mode = storedMode.value;
 
-  const zoom = useMemo(() => {
+  const { workspaceFitScale } = useMemo(() => {
+    if (!presentation) {
+      return { workspaceFitScale: Number.POSITIVE_INFINITY };
+    }
+    const fit = calculateFitToWorkspace(available, presentation);
+    return { workspaceFitScale: fit.scale };
+  }, [available, presentation]);
+
+  const { zoom, workspaceCapped } = useMemo(() => {
+    let requested: number;
     if (mode === 'manual') {
-      return snapZoom(clamp(storedManualZoom.value, ZOOM_MIN, ZOOM_MAX));
+      requested = snapZoom(clamp(storedManualZoom.value, ZOOM_MIN, ZOOM_MAX));
+    } else if (heightMode === 'auto') {
+      requested = calculateFitZoom(content, available, 'width');
+    } else {
+      const primary = calculateFitZoom(content, available, mode);
+      const screenFit = calculateFitZoom(content, available, 'screen');
+      requested = Math.min(primary, screenFit);
     }
-    if (heightMode === 'auto') {
-      // A frame that always fills the pane cannot also be fitted on both
-      // axes, so filling the height implies a width fit.  display.height
-      // is derived from the zoom (via deriveFrameGeometry) and will always
-      // match the available height — so there is never any vertical
-      // overflow in this mode and we don't need a second cap.
-      return calculateFitZoom(content, available, 'width');
+
+    if (!Number.isFinite(workspaceFitScale) || workspaceFitScale <= 0) {
+      return { zoom: requested, workspaceCapped: false };
     }
-    // In fixed-height mode the frame keeps the device's aspect ratio, so a
-    // tall viewport selected with only a width fit would overflow the pane
-    // vertically.  Always cap to the screen-fit zoom so 2K / 4K / custom
-    // and rotated-tall viewports stay fully visible inside the preview.
-    const primary = calculateFitZoom(content, available, mode);
-    const screenFit = calculateFitZoom(content, available, 'screen');
-    return Math.min(primary, screenFit);
-  }, [available, content, heightMode, mode, storedManualZoom.value]);
+    if (requested <= workspaceFitScale + 1e-6) {
+      return { zoom: requested, workspaceCapped: false };
+    }
+    return { zoom: workspaceFitScale, workspaceCapped: true };
+  }, [
+    available,
+    content,
+    heightMode,
+    mode,
+    storedManualZoom.value,
+    workspaceFitScale,
+  ]);
 
   const setZoom = useCallback(
     (next: number) => {
@@ -105,6 +138,8 @@ export function useZoom({
     isFit: mode !== 'manual',
     canZoomIn: zoom < ZOOM_MAX - 0.001,
     canZoomOut: zoom > ZOOM_MIN + 0.001,
+    workspaceCapped,
+    workspaceFitScale,
     setMode,
     setZoom,
     stepZoom,
