@@ -107,10 +107,56 @@ false impression of fidelity, so `Fit` clamps at 1:1 and you scroll instead.
 
 **Not every site can be framed.** Servers commonly send `X-Frame-Options:
 DENY`/`SAMEORIGIN` or a `Content-Security-Policy` with `frame-ancestors`, which
-tells the browser to refuse rendering the page inside an iframe. The browser
-blocks it and the app surfaces an error state — there is no client-side
-workaround, because that is the point of those headers. Sites that allow
-embedding work fine.
+tells the browser to refuse rendering the page inside an iframe. There is no
+client-side workaround, because that is the point of those headers. Sites that
+allow embedding work fine.
+
+### What is and is not the cause
+
+Measured in Chrome, a blocked frame is **indistinguishable** from a working one
+from the parent page:
+
+| target | `load` fires | `error` fires | `contentWindow` |
+| --- | --- | --- | --- |
+| framable page | yes, ~170 ms | no | `SecurityError` |
+| `X-Frame-Options: DENY` | yes, ~830 ms | no | `SecurityError` |
+| `X-Frame-Options: SAMEORIGIN` | yes, ~460 ms | no | `SecurityError` |
+
+So a blank preview cannot be auto-detected, which is why **Frame not showing?**
+in the sidebar opens a short explainer with copy-paste header fixes instead of
+pretending to diagnose. That dialog can only confirm a header when the target
+opts into `Access-Control-Expose-Headers`; `X-Frame-Options` and
+`Content-Security-Policy` are not CORS-safelisted, so a `null` result means
+"hidden", never "absent".
+
+The hosting platform is not the cause. These all load with no framing headers
+at all: `react.dev` (Vercel), `vitejs.dev` (Netlify), `docs.netlify.com`,
+`www.netlify.com`. It is always the individual app, either its own config or
+its framework's default — Nitro/Nuxt sets `X-Frame-Options`, and Helmet blocks
+framing for Express.
+
+### Force embed
+
+**Force embed** routes the frame through `src/app/api/embed`, which fetches the
+document server-side, drops the headers that cause the refusal, and injects a
+`<base href>` so the page's own assets still resolve against the original site.
+It is opt-in and off by default, and it helps most with static and
+server-rendered pages.
+
+It cannot fix everything, and the failures are structural rather than bugs:
+
+- A client-routed app that builds its own URL from `location` will navigate off
+  the proxy. The guard re-homes `pushState`, `replaceState`,
+  `location.assign`/`replace` and link clicks back through the proxy, but
+  `location.href` is non-configurable in Chrome, so an app that assigns to it
+  directly still leaves.
+- An app whose data comes from its own API fails once it stops being
+  same-origin; the shell renders and the app shows its own error state.
+- Anything behind a login or a third-party cookie wall will not render.
+- The proxy rejects loopback, link-local, and private ranges, including
+  `localhost` and the `169.254.169.254` metadata endpoint, re-checking after
+  redirects. Test local dev servers directly instead — they rarely block
+  framing, so they do not need the proxy.
 
 Related notes:
 

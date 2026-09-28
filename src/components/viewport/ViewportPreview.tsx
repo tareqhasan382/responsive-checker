@@ -10,7 +10,10 @@ import { PREVIEW_GUTTER } from '@/utils/constants';
 import { ViewportFrame } from './ViewportFrame';
 
 export interface ViewportPreviewProps {
+  /** The real site, used for "Open in new tab". */
   readonly target: string | null;
+  /** What the frame loads, which is the proxy route when Force embed is on. */
+  readonly src: string | null;
   /** Logical size the target page sees, in CSS pixels. */
   readonly content: Size;
   /** On-screen size after zoom scaling. */
@@ -20,6 +23,8 @@ export interface ViewportPreviewProps {
   /** `false` until the pane has been measured, so no mis-scaled frame is painted. */
   readonly measured: boolean;
   readonly onReload: () => void;
+  /** Opens the framing explainer, which is the only path to a real fix. */
+  readonly onDiagnose: () => void;
 }
 
 type BlockingStatus = Exclude<FrameStatus, 'empty' | 'ready'>;
@@ -34,12 +39,14 @@ const STATUS_MESSAGES: Record<BlockingStatus, string> = {
 
 export function ViewportPreview({
   target,
+  src,
   content,
   display,
   zoom,
   reloadKey,
   measured,
   onReload,
+  onDiagnose,
 }: ViewportPreviewProps) {
   const [status, setStatus] = useState<FrameStatus>('empty');
   const handleStatusChange = useCallback(
@@ -60,7 +67,7 @@ export function ViewportPreview({
       >
         {!measured ? (
           <Skeleton />
-        ) : target === null ? (
+        ) : target === null || src === null ? (
           <EmptyState />
         ) : (
           <div
@@ -81,7 +88,7 @@ export function ViewportPreview({
                 style={{ width: content.width, height: content.height }}
               >
                 <ViewportFrame
-                  src={target}
+                  src={src}
                   content={content}
                   zoom={zoom}
                   reloadKey={reloadKey}
@@ -90,7 +97,12 @@ export function ViewportPreview({
               </div>
 
               {blocking ? (
-                <Overlay status={blocking} target={target} onReload={onReload} />
+                <Overlay
+                  status={blocking}
+                  target={target}
+                  onReload={onReload}
+                  onDiagnose={onDiagnose}
+                />
               ) : null}
             </div>
           </div>
@@ -120,10 +132,12 @@ function Overlay({
   status,
   target,
   onReload,
+  onDiagnose,
 }: {
   readonly status: BlockingStatus;
   readonly target: string;
   readonly onReload: () => void;
+  readonly onDiagnose: () => void;
 }) {
   return (
     <div className="bg-app-overlay absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-[5px] px-4 text-center backdrop-blur">
@@ -161,6 +175,9 @@ function Overlay({
               }
             >
               Open in new tab
+            </Button>
+            <Button size="sm" variant="ghost" onClick={onDiagnose}>
+              Why?
             </Button>
           </div>
         </>

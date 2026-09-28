@@ -8,6 +8,7 @@ import { SidebarAuthorCard } from '@/components/layout/SidebarAuthorCard';
 import { Button } from '@/components/ui/Button';
 import { IconButton } from '@/components/ui/IconButton';
 import { Input } from '@/components/ui/Input';
+import { Switch } from '@/components/ui/Switch';
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -16,6 +17,7 @@ import {
   ReloadIcon,
   TestIcon,
 } from '@/components/ui/icons';
+import { FramingHelpDialog } from '@/components/viewport/FramingHelpDialog';
 import { ViewportControls } from '@/components/viewport/ViewportControls';
 import { ViewportPreview } from '@/components/viewport/ViewportPreview';
 import { ViewportSelector } from '@/components/viewport/ViewportSelector';
@@ -45,11 +47,14 @@ export default function HomePage() {
   const viewport = useViewport();
   const pane = useElementSize<HTMLDivElement>();
   const [reloadKey, setReloadKey] = useState(0);
+  const [framingHelpOpen, setFramingHelpOpen] = useState(false);
+  const openFramingHelp = useCallback(() => setFramingHelpOpen(true), []);
   const sidebarCollapsed = usePersistentState(
     'sidebar-collapsed',
     false,
     isBoolean,
   );
+  const forceEmbed = usePersistentState('force-embed', false, isBoolean);
 
   const available = useMemo(
     () => ({
@@ -80,6 +85,18 @@ export default function HomePage() {
     () => setReloadKey((current) => current + 1),
     [],
   );
+
+  /*
+   * Force embed routes the frame through /api/embed, which re-serves the
+   * document without the headers that make a browser refuse to frame it. The
+   * real target is kept alongside it so "Open in new tab" still goes to the
+   * site itself rather than to the proxy.
+   */
+  const frameSrc = useMemo(() => {
+    if (url.target === null) return null;
+    if (!forceEmbed.value) return url.target;
+    return `/api/embed?url=${encodeURIComponent(url.target)}`;
+  }, [url.target, forceEmbed.value]);
 
   // Mirror the target into ?url= so the current preview can be shared or
   // reloaded. replaceState keeps it out of the session history.
@@ -253,7 +270,23 @@ export default function HomePage() {
                       >
                         Open
                       </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        disabled={url.target === null}
+                        onClick={openFramingHelp}
+                      >
+                        Frame not showing?
+                      </Button>
                     </div>
+
+                    <Switch
+                      className="mt-1.5"
+                      checked={forceEmbed.value}
+                      onCheckedChange={forceEmbed.setValue}
+                      label="Force embed"
+                      hint="Re-serve sites that block framing. Best for static and server-rendered pages."
+                    />
                   </div>
                 </div>
               </div>
@@ -266,15 +299,23 @@ export default function HomePage() {
         <div ref={pane.ref} className="flex min-w-0 flex-1 flex-col">
           <ViewportPreview
             target={url.target}
+            src={frameSrc}
             content={frame.content}
             display={frame.display}
             zoom={zoom.zoom}
             reloadKey={reloadKey}
             measured={pane.measured}
             onReload={handleReload}
+            onDiagnose={openFramingHelp}
           />
         </div>
       </div>
+
+      <FramingHelpDialog
+        open={framingHelpOpen}
+        onClose={() => setFramingHelpOpen(false)}
+        target={url.target}
+      />
     </AppShell>
   );
 }

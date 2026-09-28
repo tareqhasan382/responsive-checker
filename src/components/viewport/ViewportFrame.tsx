@@ -27,6 +27,15 @@ export interface ViewportFrameProps {
  * The `sandbox` token list is deliberately permissive so real sites work. It
  * omits `allow-top-navigation`, so a framed page can never navigate the
  * tester away.
+ *
+ * `onLoad` firing does NOT mean the document rendered. Measured in Chrome: a
+ * framable page, one sending `X-Frame-Options: DENY` and one sending
+ * `SAMEORIGIN` all fire `load` within a second, `error` never fires, and every
+ * read of `contentWindow` throws `SecurityError` in all three cases. A frame
+ * the browser refused to render is therefore indistinguishable from a working
+ * one, and blank frames cannot be auto-detected from here — the toolbar's
+ * "Frame not showing?" explainer is the only route to a diagnosis, and the fix
+ * always belongs to the target site.
  */
 export function ViewportFrame({
   src,
