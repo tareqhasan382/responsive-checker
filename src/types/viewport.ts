@@ -3,6 +3,20 @@ export interface Size {
   readonly height: number;
 }
 
+export interface BezelPadding {
+  readonly top: number;
+  readonly right: number;
+  readonly bottom: number;
+  readonly left: number;
+}
+
+export interface ViewportRegion {
+  readonly top: number;
+  readonly left: number;
+  readonly width: number;
+  readonly height: number;
+}
+
 export type ViewportCategory =
   'mobile' | 'tablet' | 'desktop' | '2k' | '4k' | 'tv' | 'custom';
 

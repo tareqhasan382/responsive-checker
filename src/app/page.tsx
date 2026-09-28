@@ -28,7 +28,11 @@ import { useTargetUrl } from '@/hooks/useTargetUrl';
 import { useViewport } from '@/hooks/useViewport';
 import { useZoom } from '@/hooks/useZoom';
 import { PREVIEW_GUTTER } from '@/utils/constants';
-import { deriveFrameGeometry, formatSize } from '@/utils/viewport';
+import {
+  deriveFrameGeometry,
+  derivePresentationGeometry,
+  formatSize,
+} from '@/utils/viewport';
 
 /** True when the user is typing, so single-letter shortcuts stay out of the way. */
 function isTypingTarget(target: EventTarget | null): boolean {
@@ -56,6 +60,15 @@ export default function HomePage() {
   );
   const forceEmbed = usePersistentState('force-embed', false, isBoolean);
 
+  const presentationGeometry = useMemo(
+    () =>
+      derivePresentationGeometry({
+        viewportSize: viewport.size,
+        category: viewport.activePreset?.category,
+      }),
+    [viewport.activePreset?.category, viewport.size],
+  );
+
   const available = useMemo(
     () => ({
       width: Math.max(0, pane.size.width - PREVIEW_GUTTER * 2),
@@ -68,6 +81,7 @@ export default function HomePage() {
     available,
     content: viewport.size,
     heightMode: viewport.heightMode,
+    presentation: presentationGeometry.presentation,
   });
 
   const frame = useMemo(
@@ -77,8 +91,9 @@ export default function HomePage() {
         heightMode: viewport.heightMode,
         available,
         zoom: zoom.zoom,
+        category: viewport.activePreset?.category,
       }),
-    [available, viewport.heightMode, viewport.size, zoom.zoom],
+    [available, viewport.activePreset?.category, viewport.heightMode, viewport.size, zoom.zoom],
   );
 
   const handleReload = useCallback(
@@ -302,7 +317,12 @@ export default function HomePage() {
             src={frameSrc}
             content={frame.content}
             display={frame.display}
+            presentation={frame.presentation}
+            fittedPresentation={frame.fittedPresentation}
+            viewportInPresentation={frame.viewportInPresentation}
             zoom={zoom.zoom}
+            effectiveScale={zoom.zoom}
+            category={viewport.activePreset?.category}
             reloadKey={reloadKey}
             measured={pane.measured}
             onReload={handleReload}
