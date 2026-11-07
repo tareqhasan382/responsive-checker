@@ -33,6 +33,10 @@ function isBoolean(value: unknown): value is boolean {
   return typeof value === 'boolean';
 }
 
+function isStringOrNull(value: unknown): value is string | null {
+  return value === null || typeof value === 'string';
+}
+
 function isCustomPresetList(value: unknown): value is ViewportPreset[] {
   return (
     Array.isArray(value) &&
@@ -103,11 +107,17 @@ export function useViewport(): UseViewportResult {
     [],
     isCustomPresetList,
   );
+  const storedPresetId = usePersistentState<string | null>(
+    STORAGE_KEYS.activePresetId,
+    null,
+    isStringOrNull,
+  );
 
   const { setValue: setBaseSize } = storedBaseSize;
   const { setValue: setRotation } = storedRotation;
   const { setValue: setHeightModeValue } = storedHeightMode;
   const { setValue: setCustomViewports } = storedCustomViewports;
+  const { setValue: setPresetId } = storedPresetId;
 
   const baseSize = useMemo(
     () => clampSize(storedBaseSize.value),
@@ -125,8 +135,9 @@ export function useViewport(): UseViewportResult {
     (preset: ViewportPreset) => {
       setBaseSize(clampSize({ width: preset.width, height: preset.height }));
       setRotation(false);
+      setPresetId(preset.id);
     },
-    [setBaseSize, setRotation],
+    [setBaseSize, setPresetId, setRotation],
   );
 
   const rotate = useCallback(() => {
@@ -144,8 +155,11 @@ export function useViewport(): UseViewportResult {
     (next: Size) => {
       setBaseSize(clampSize(next));
       setRotation(false);
+      // An ad-hoc size is not a preset until it is saved, so drop the id and let
+      // size matching decide whether it happens to coincide with one.
+      setPresetId(null);
     },
-    [setBaseSize, setRotation],
+    [setBaseSize, setPresetId, setRotation],
   );
 
   const addCustomViewport = useCallback(
@@ -178,9 +192,10 @@ export function useViewport(): UseViewportResult {
       ]);
       setBaseSize({ width: preset.width, height: preset.height });
       setRotation(false);
+      setPresetId(preset.id);
       return preset;
     },
-    [setBaseSize, setCustomViewports, setRotation],
+    [setBaseSize, setCustomViewports, setPresetId, setRotation],
   );
 
   const removeCustomViewport = useCallback(
@@ -197,10 +212,28 @@ export function useViewport(): UseViewportResult {
     [storedCustomViewports.value],
   );
 
-  const activePreset = useMemo(
-    () => findPresetBySize(presets, baseSize) ?? null,
-    [baseSize, presets],
-  );
+  /**
+   * The preset the size came from.
+   *
+   * Resolved by id first, because sizes repeat across categories — `UHD 4K` and
+   * `UHD 4K TV` are both 3840 × 2160, and only the id says which device the user
+   * actually picked. Size matching stays as the fallback for a size that arrived
+   * from storage or an older session without an id.
+   */
+  const activePreset = useMemo(() => {
+    const presetId = storedPresetId.value;
+    if (presetId !== null) {
+      const byId = presets.find((preset) => preset.id === presetId);
+      if (
+        byId !== undefined &&
+        byId.width === baseSize.width &&
+        byId.height === baseSize.height
+      ) {
+        return byId;
+      }
+    }
+    return findPresetBySize(presets, baseSize) ?? null;
+  }, [baseSize, presets, storedPresetId.value]);
 
   const baseIsLandscape = baseSize.width >= baseSize.height;
   const activeLabel = activePreset

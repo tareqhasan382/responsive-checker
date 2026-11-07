@@ -32,6 +32,7 @@ import {
   deriveFrameGeometry,
   derivePresentationGeometry,
   formatSize,
+  resolveDeviceOrientation,
 } from '@/utils/viewport';
 
 /** True when the user is typing, so single-letter shortcuts stay out of the way. */
@@ -41,7 +42,7 @@ function isTypingTarget(target: EventTarget | null): boolean {
   const tag = target.tagName;
   return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT';
 }
-
+           
 function isBoolean(value: unknown): value is boolean {
   return typeof value === 'boolean';
 }
@@ -60,13 +61,26 @@ export default function HomePage() {
   );
   const forceEmbed = usePersistentState('force-embed', false, isBoolean);
 
+  // The bezel and orientation come from the device itself, so the fit and the
+  // frame always agree — including in `auto` height mode, where the screen box
+  // is stretched well past the device's own proportions.
+  const orientation = useMemo(
+    () =>
+      resolveDeviceOrientation({
+        size: viewport.baseSize,
+        isRotated: viewport.isRotated,
+      }),
+    [viewport.baseSize, viewport.isRotated],
+  );
+
   const presentationGeometry = useMemo(
     () =>
       derivePresentationGeometry({
         viewportSize: viewport.size,
         category: viewport.activePreset?.category,
+        orientation,
       }),
-    [viewport.activePreset?.category, viewport.size],
+    [orientation, viewport.activePreset?.category, viewport.size],
   );
 
   const available = useMemo(
@@ -88,12 +102,24 @@ export default function HomePage() {
     () =>
       deriveFrameGeometry({
         viewportSize: viewport.size,
+        // The hardware is resolved from the unrotated device, so filling the
+        // pane in `auto` height mode never changes what the frame looks like.
+        deviceSize: viewport.baseSize,
+        isRotated: viewport.isRotated,
         heightMode: viewport.heightMode,
         available,
         zoom: zoom.zoom,
         category: viewport.activePreset?.category,
       }),
-    [available, viewport.activePreset?.category, viewport.heightMode, viewport.size, zoom.zoom],
+    [
+      available,
+      viewport.activePreset?.category,
+      viewport.baseSize,
+      viewport.heightMode,
+      viewport.isRotated,
+      viewport.size,
+      zoom.zoom,
+    ],
   );
 
   const handleReload = useCallback(
@@ -316,13 +342,13 @@ export default function HomePage() {
             target={url.target}
             src={frameSrc}
             content={frame.content}
-            display={frame.display}
             presentation={frame.presentation}
             fittedPresentation={frame.fittedPresentation}
             viewportInPresentation={frame.viewportInPresentation}
-            zoom={zoom.zoom}
             effectiveScale={zoom.zoom}
             category={viewport.activePreset?.category}
+            isRotated={viewport.isRotated}
+            baseSize={viewport.baseSize}
             reloadKey={reloadKey}
             measured={pane.measured}
             onReload={handleReload}
