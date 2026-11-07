@@ -20,6 +20,12 @@ export interface ViewportRegion {
 export type ViewportCategory =
   'mobile' | 'tablet' | 'desktop' | '2k' | '4k' | 'tv' | 'custom';
 
+/** The kind of physical device a viewport is rendered as. */
+export type DeviceFamily = 'mobile' | 'tablet' | 'desktop' | 'tv';
+
+/** Screen orientation of the device being drawn. */
+export type DeviceOrientation = 'portrait' | 'landscape';
+
 export interface ViewportPreset {
   /** Stable identifier, also used as the localStorage key for custom presets. */
   readonly id: string;

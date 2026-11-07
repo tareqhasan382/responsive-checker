@@ -11,6 +11,8 @@ import {
 } from './constants';
 import type {
   BezelPadding,
+  DeviceFamily,
+  DeviceOrientation,
   FitMode,
   HeightMode,
   Size,
@@ -19,6 +21,16 @@ import type {
   ViewportRegion,
 } from '@/types/viewport';
 
+/**
+ * Hardware drawn around the screen, in CSS pixels, per device family and
+ * orientation.
+ *
+ * Handhelds are treated as a physical object that can be turned: rotating a
+ * phone moves its wide "chin" bezel from the bottom edge to the right edge and
+ * its island from the top edge to the left edge, which is why landscape needs
+ * its own numbers. Desktop and TV stands stay planted, so both orientations
+ * share one bezel there.
+ */
 export const DEVICE_BEZEL_MOBILE: BezelPadding = {
   top: 48,
   right: 14,
@@ -26,11 +38,26 @@ export const DEVICE_BEZEL_MOBILE: BezelPadding = {
   left: 14,
 };
 
+export const DEVICE_BEZEL_MOBILE_LANDSCAPE: BezelPadding = {
+  top: 34,
+  right: 30,
+  bottom: 34,
+  left: 48,
+};
+
 export const DEVICE_BEZEL_TABLET: BezelPadding = {
   top: 32,
   right: 20,
   bottom: 20,
   left: 20,
+};
+
+/** iPad-style slabs are symmetric, so every edge stays the same thickness. */
+export const DEVICE_BEZEL_TABLET_LANDSCAPE: BezelPadding = {
+  top: 26,
+  right: 26,
+  bottom: 26,
+  left: 26,
 };
 
 export const DEVICE_BEZEL_DESKTOP: BezelPadding = {
@@ -47,30 +74,106 @@ export const DEVICE_BEZEL_TV: BezelPadding = {
   left: 24,
 };
 
-export function getBezelForCategory(
+const DEVICE_BEZELS: Record<
+  DeviceFamily,
+  Record<DeviceOrientation, BezelPadding>
+> = {
+  mobile: {
+    portrait: DEVICE_BEZEL_MOBILE,
+    landscape: DEVICE_BEZEL_MOBILE_LANDSCAPE,
+  },
+  tablet: {
+    portrait: DEVICE_BEZEL_TABLET,
+    landscape: DEVICE_BEZEL_TABLET_LANDSCAPE,
+  },
+  desktop: {
+    portrait: DEVICE_BEZEL_DESKTOP,
+    landscape: DEVICE_BEZEL_DESKTOP,
+  },
+  tv: {
+    portrait: DEVICE_BEZEL_TV,
+    landscape: DEVICE_BEZEL_TV,
+  },
+};
+
+/** Above this aspect ratio a "tablet" is really an ultrawide desktop. */
+const TABLET_MAX_ASPECT = 2.2;
+
+/** Narrows at or below this are drawn as a phone. */
+const MOBILE_MAX_SHORT_EDGE = 500;
+
+/** Narrows at or below this (and not ultrawide) are drawn as a tablet. */
+const TABLET_MAX_SHORT_EDGE = 1300;
+
+/**
+ * Which device a size should be drawn as.
+ *
+ * Categories answer directly; an ad-hoc custom size falls back to its narrow
+ * edge, which is what makes a hand-typed `844 × 390` render as a phone turned
+ * on its side rather than as a desktop.
+ */
+export function resolveDeviceFamily(
   category: ViewportCategory | undefined,
   size: Size,
-): BezelPadding {
+): DeviceFamily {
   switch (category) {
     case 'mobile':
-      return DEVICE_BEZEL_MOBILE;
+      return 'mobile';
     case 'tablet':
-      return DEVICE_BEZEL_TABLET;
+      return 'tablet';
     case 'desktop':
     case '2k':
     case '4k':
-      return DEVICE_BEZEL_DESKTOP;
+      return 'desktop';
     case 'tv':
-      return DEVICE_BEZEL_TV;
+      return 'tv';
     case 'custom':
     default: {
-      const isPortrait = size.height > size.width;
       const narrow = Math.min(size.width, size.height);
-      if (narrow <= 500 && isPortrait) return DEVICE_BEZEL_MOBILE;
-      if (narrow <= 1300) return DEVICE_BEZEL_TABLET;
-      return DEVICE_BEZEL_DESKTOP;
+      if (narrow <= MOBILE_MAX_SHORT_EDGE) return 'mobile';
+      if (
+        narrow <= TABLET_MAX_SHORT_EDGE &&
+        Math.max(size.width, size.height) / narrow <= TABLET_MAX_ASPECT
+      ) {
+        return 'tablet';
+      }
+      return 'desktop';
     }
   }
+}
+
+/** Orientation implied by a size alone. Square sizes are treated as portrait. */
+export function resolveOrientation(size: Size): DeviceOrientation {
+  return size.width > size.height ? 'landscape' : 'portrait';
+}
+
+/**
+ * Orientation of the *device*, which is not always the orientation of the size
+ * the screen is currently laid out at.
+ *
+ * A phone is a rigid object and its screen covers the whole face, so turning it
+ * turns the screen too. Deriving it from the unrotated size plus the rotation
+ * flag — rather than from the current screen box — keeps the hardware stable in
+ * `auto` height mode, where the screen is stretched far past the device's own
+ * proportions.
+ */
+export function resolveDeviceOrientation({
+  size,
+  isRotated,
+}: {
+  /** The unrotated device size. */
+  readonly size: Size;
+  readonly isRotated?: boolean | undefined;
+}): DeviceOrientation {
+  return resolveOrientation(isRotated === true ? rotateSize(size) : size);
+}
+
+export function getBezelForCategory(
+  category: ViewportCategory | undefined,
+  size: Size,
+  orientation: DeviceOrientation = resolveOrientation(size),
+): BezelPadding {
+  return DEVICE_BEZELS[resolveDeviceFamily(category, size)][orientation];
 }
 
 export interface FitToWorkspaceResult {
@@ -129,12 +232,16 @@ export function derivePresentationGeometry({
   viewportSize,
   category,
   bezel,
+  orientation,
 }: {
   readonly viewportSize: Size;
   readonly category?: ViewportCategory | undefined;
   readonly bezel?: BezelPadding | undefined;
+  /** Orientation of the device the screen belongs to. */
+  readonly orientation?: DeviceOrientation | undefined;
 }): PresentationGeometry {
-  const resolvedBezel = bezel ?? getBezelForCategory(category, viewportSize);
+  const resolvedBezel =
+    bezel ?? getBezelForCategory(category, viewportSize, orientation);
   const width = Math.max(1, Math.round(viewportSize.width));
   const height = Math.max(1, Math.round(viewportSize.height));
 
@@ -251,8 +358,16 @@ export function createCustomViewportId(label: string): string {
 export const MAX_AUTO_FRAME_HEIGHT = 5000;
 
 export interface FrameGeometryInput {
-  /** The selected device size. */
+  /** The selected device size, already rotated if the device is turned. */
   readonly viewportSize: Size;
+  /**
+   * The device's own size before rotation and before `auto` height mode
+   * stretches the screen. Decides which device the frame is drawn as; defaults
+   * to `viewportSize`.
+   */
+  readonly deviceSize?: Size;
+  /** Whether the device is physically turned 90° from `deviceSize`. */
+  readonly isRotated?: boolean;
   readonly heightMode: HeightMode;
   /** Usable space in the preview pane, excluding padding. */
   readonly available: Size;
@@ -280,10 +395,14 @@ export interface FrameGeometry {
  *
  * In `auto` height mode the frame is stretched to fill the pane, so its logical
  * height is derived from the space left after scaling — the width always comes
- * from the selected device.
+ * from the selected device. The bezel is still resolved from the device's own
+ * size and orientation, so filling the pane never changes which hardware the
+ * frame is drawn as.
  */
 export function deriveFrameGeometry({
   viewportSize,
+  deviceSize,
+  isRotated,
   heightMode,
   available,
   zoom,
@@ -301,11 +420,16 @@ export function deriveFrameGeometry({
 
   const content: Size = { width, height: contentHeight };
 
-  const { presentation, viewportInPresentation, bezel } =
-    derivePresentationGeometry({
-      viewportSize: content,
-      category,
-    });
+  const hardware = deviceSize ?? viewportSize;
+  const bezel = getBezelForCategory(
+    category,
+    hardware,
+    resolveDeviceOrientation({ size: hardware, isRotated }),
+  );
+  const { presentation, viewportInPresentation } = derivePresentationGeometry({
+    viewportSize: content,
+    bezel,
+  });
 
   return {
     content,

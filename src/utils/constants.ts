@@ -45,6 +45,12 @@ export const STORAGE_KEYS = {
   targetUrl: 'responsive-checker:target-url',
   customViewports: 'responsive-checker:custom-viewports',
   viewportSize: 'responsive-checker:viewport-size',
+  /**
+   * Which preset was picked, by id. Sizes are not unique across categories — a
+   * 4K desktop and a 4K TV are both 3840 × 2160 — so the id is what keeps the
+   * frame honest about which device it is drawing.
+   */
+  activePresetId: 'responsive-checker:active-preset-id',
   heightMode: 'responsive-checker:height-mode:v2',
   isRotated: 'responsive-checker:is-rotated',
   fitMode: 'responsive-checker:fit-mode:v2',
